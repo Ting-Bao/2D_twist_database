@@ -1,0 +1,63 @@
+# +----------------+
+# | System Setting |
+# +----------------+
+SYSTEM      =  VASP
+NCORE       =  8
+NWRITE      =  2
+LORBIT      =  11
+LSCALAPACK  =  .FALSE.
+
+# +------------------+
+# | Ionic Relaxation |
+# +------------------+
+EDIFFG  =  -1E-3
+IBRION  =  2
+ISIF    =  2
+ISYM    =  2
+NSW     =  500
+#POTIM   =  0.05
+
+# +-----------------------+
+# | Electronic Relaxation |
+# +-----------------------+
+LCHARG   =  .FALSE.
+LWAVE    =  .FALSE.
+ISTART   =  0
+ICHARG   =  2
+ALGO     =  Normal
+LREAL    =  .FALSE.
+PREC     =  Accurate
+EDIFF    =  1.0E-7
+ENCUT    =  600
+NELMIN   =  4
+NELM     =  300
+ISMEAR   =  0
+SIGMA    =  0.05
+
+IVDW     =  11
+
+# +----------------------+
+# | Magnetic(Spin) Calc. |
+# -----------------------+
+LORBMOM         =  .FALSE.
+ISPIN           =  1
+#MAGMOM          =  1000*0
+#GGA_COMPAT     =  .FALSE.
+#LNONCOLLINEAR  =  .TRUE.
+#LSORBIT        =  .TRUE.
+#SAXIS          =  0.0 0.0 1.0
+#AMIX           =  0.2
+#BMIX           =  0.0001
+#AMIX_MAG       =  0.8
+#BMIX_MAG       =  0.0001
+
+# +----------------+
+# | L(S)DA+U Calc. |
+# +----------------+
+#LDAU       =  .TRUE.
+#LDAUTYPE   =  2
+#LDAUL      =  -1 -1 2
+#LDAUU      =  0.0 0.0 4.0
+#LDAUJ      =  0.0 0.0 0.0
+#LDAUPRINT  =  2
+
