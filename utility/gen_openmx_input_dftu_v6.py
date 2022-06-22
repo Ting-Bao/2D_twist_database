@@ -3,25 +3,22 @@ from pymatgen.core.structure import Structure
 from string import digits
 # from xurz_funct import *
 import numpy as np
-'''
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--basis', default=1, type=int,
                     help='Set basis accuracy, 1=quick / 2=standard / 3=precise')
-parser.add_argument('--bands', default=True, type=bool,
+parser.add_argument('--bands', action='store_true',
                     help='Enable band structure output')
 parser.add_argument('--magmom', nargs='+', default=[0.0, 0.0, 0.0], type=float,
                     help='Set magnetic moment for each element, [M1,M2,M3], can be expanded to elements > 3')
-parser.add_argument('--soc', default=True, type=bool,
+parser.add_argument('--soc', action='store_true',
                     help='Enable SOC calculation')
-parser.add_argument('--dftu', default=False, type=bool,
+parser.add_argument('--dftu',action='store_true',
                     help='Enable DFT+U calculation')
 parser.add_argument('--dftu_value', default=['Mo','1d','3.0'], type=str,
                     help='Set DFT U value, [element,orbital,U_value]')
 args = parser.parse_args()
-'''
-
 pot_path = '/home/xurz/POT/DFT_DATA19'
-basis_config='/home/xurz/POT/opmx_basis.txt'
 
 ### output openmx basis settings for specific element
 def find_basis(x, b):
@@ -29,7 +26,7 @@ def find_basis(x, b):
     # txt file format: Element_name  ZVAL  POT_name  NELECT  Quick  Standard  Precise
     pot_name = x + '_PBE19'
     # with open('opmx_basis.txt', 'r') as opmx_basis:
-    with open(basis_config, 'r') as opmx_basis:
+    with open('/home/xurz/POT/opmx_basis.txt', 'r') as opmx_basis:
         lines = opmx_basis.readlines()
         for line in lines:
             if pot_name in line:

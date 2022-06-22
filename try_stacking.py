@@ -13,15 +13,15 @@
 # VASP calculation is required here, thus the input file is generated locally and should be uploaded to the server for calculation
 # vaspkit is required to get POTCAR and KPOINTS, make sure vaspkit have proper access to PBE pseudo-potential
 
-used_data='selected_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
+used_data='data/selected_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
 vaspkitpath='/home/tingbao/Software/vaspkit.1.3.3/bin/vaspkit' 
-savepath='ABstacking_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
+savepath='data/ABstacking_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
 
 import os
 import shutil
 import json
-from make_bilayer_v2 import *
-from utils import *
+from utility.make_bilayer_v2 import *
+from utility.utils import *
 
 def prepare_for_VASP(calcpath,name='default'):
     '''POSCAR file should be in the calcpath

@@ -12,8 +12,8 @@
 #       4. currently we only take gamma=120/60 degree
 
 
-poscarpath='c2dbdata/poscardata/'
-alldatapath='c2dbdata/jsondata/'
+poscarpath='data/c2dbdata/poscardata/'
+alldatapath='data/c2dbdata/jsondata/'
 max_ele_type=2
 max_atoms=8
 check_ICSD=False
@@ -23,27 +23,27 @@ import os
 import json
 from pymatgen.io.vasp import Poscar
 from tqdm import tqdm
-from utils import *
+from utility.utils import *
 import shutil
 
 
 if __name__=='__main__':
     #where to put the selected data
     configname='square_ICSD_{}+maxele_{}+maxatom_{}+ehull_{:.1f}'.format(check_ICSD,max_ele_type,max_atoms,ehull)
-    jsdst='selected_data/{}/jsonfile/'.format(configname)
-    psdst='selected_data/{}/poscar/'.format(configname)
+    jsdst='data/selected_data/{}/jsonfile/'.format(configname)
+    psdst='data/selected_data/{}/poscar/'.format(configname)
     os.makedirs(jsdst)
     os.makedirs(psdst)
 
-    namelist=read_namelist('c2dbdata/namelist.json')
+    namelist=read_namelist('data/c2dbdata/namelist.json')
     print ('we have {} candidates.'.format(len(namelist)))
 
     count=0
     newnamelist=[]
     for i in range(len(namelist)):
         name=namelist[i]
-        jsonpath='c2dbdata/jsondata/{}.all_data.json'.format(name)
-        poscarpath='c2dbdata/poscardata/POSCAR_{}'.format(name)
+        jsonpath='data/c2dbdata/jsondata/{}.all_data.json'.format(name)
+        poscarpath='data/c2dbdata/poscardata/POSCAR_{}'.format(name)
         if check_ICSD and not if_ICSD(jsonpath):
             print (name,'\t no ICSD ID, out')
             continue 
@@ -71,6 +71,6 @@ if __name__=='__main__':
         count+=1
         shutil.copy(jsonpath.format(name),jsdst)
         shutil.copy(poscarpath, psdst)
-    with open('selected_data/{}/namelist.json'.format(configname),'w',encoding='utf-8') as f:
+    with open('data/selected_data/{}/namelist.json'.format(configname),'w',encoding='utf-8') as f:
         json.dump({'namelist':newnamelist},f,indent=2)
     print('Finally got {} materials, copied to selected data'.format(count))
