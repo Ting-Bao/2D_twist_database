@@ -28,11 +28,11 @@ def prepare_for_VASP(calcpath,name='default'):
     '''
     run_sh=runsh_w001(name=name)
     # copy incar to calc folder
-    shutil.copy('template/VASP/INCAR.RELAX', toposcar_aa+'INCAR')
-    shutil.copy('template/VASP/INCAR.RELAX', toposcar_ab+'INCAR')
     # use vaspkit to generate potcar and kpoints
     os.system('cd {} &&  {} -task 103'.format(calcpath,vaspkitpath)) # POTCAR
     os.system('cd {} &&  (echo 102; echo 2;echo 0.02)|{} '.format(calcpath,vaspkitpath)) #KPOINTS
+    shutil.copy('template/VASP/INCAR.RELAX', calcpath+'INCAR')
+    shutil.copy('template/VASP/INCAR.RELAX', calcpath+'INCAR')
     with open(calcpath+'run.sh','w',encoding='utf-8') as f:
         f.writelines(run_sh)
     

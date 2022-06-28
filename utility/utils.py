@@ -6,6 +6,13 @@ import json
 from pymatgen.io.vasp import Poscar
 
 
+def check_path(path,creat_if_not=True):
+    if not os.path.exists(path):
+        if creat_if_not:
+            os.makedirs(path)
+        return False
+    return True
+    
 def read_namelist(namelistpath):
     with open(namelistpath,'r') as f:
         temp=json.load(f)

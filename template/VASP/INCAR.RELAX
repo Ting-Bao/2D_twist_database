@@ -14,7 +14,7 @@ EDIFFG  =  -1E-3
 IBRION  =  2
 ISIF    =  2
 ISYM    =  2
-NSW     =  500
+NSW     =  100
 #POTIM   =  0.05
 
 # +-----------------------+
@@ -30,7 +30,7 @@ PREC     =  Accurate
 EDIFF    =  1.0E-7
 ENCUT    =  600
 NELMIN   =  4
-NELM     =  300
+NELM     =  100
 ISMEAR   =  0
 SIGMA    =  0.05
 
