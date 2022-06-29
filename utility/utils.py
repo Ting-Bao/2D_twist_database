@@ -75,3 +75,12 @@ def runsh_w001(name='default'):
     for i in range(len(temp)):
         temp[i]=temp[i].replace('NAMENAME', name)
     return temp
+
+def find_atomic_number(poscarpath):
+    '''return a list containing atomic numbers
+    '''
+    struc = Poscar.from_file(poscarpath)
+    temp = struc.structure.atomic_numbers
+
+    return list(temp)
+
