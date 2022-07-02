@@ -80,15 +80,21 @@ def main():
             prepare_info={'from_stack':choice}
             prepare_info['soc']=socinfo[i]
             with open(topath+i+'/prepare.json', 'w',encoding='utf-8') as f:
-                json.dump(prepare_info,f)
+                json.dump(prepare_info,f,indent=2)
         # put into priority/normal list according to ICSD id
         if if_ICSD(alldatapath+i+'.all_data.json'):
             priority_list.append(i)
-            shutil.copytree(topath+i,path_p+i)
+            if not os.path.exists(path_p+i):
+                shutil.copytree(topath+i,path_p+i)
         else:
             normal_list.append(i)
-            shutil.copytree(topath+i,path_n+i)
+            if not os.path.exists(path_n+i):
+                shutil.copytree(topath+i,path_n+i)
 
+    with open(path_p+'namelist.json','w',encoding='utf-8') as f:
+        json.dump({'namelist':priority_list},f,indent=2)
+    with open(path_n+'namelist.json','w',encoding='utf-8') as f:
+        json.dump({'namelist':normal_list},f,indent=2)
 
 if __name__=='__main__':
     main()
