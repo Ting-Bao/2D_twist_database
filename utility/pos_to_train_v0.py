@@ -111,7 +111,7 @@ def gen_orbital_set(n_element, atomic_number, N_orbital, orbitals, type):  # typ
                     first_flag = True
 
                     orbital_i = orbitals[idx_left][model_i]
-                    orbital_j = orbitals[idx_left][model_j]
+                    orbital_j = orbitals[idx_right][model_j]
                     if orbital_i != -1 and orbital_j != -1:
                         if first_flag:
                             orbital_str += f'"{atomic_number[idx_left]} {atomic_number[idx_right]}": [{orbital_i}, {orbital_j}]'

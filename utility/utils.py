@@ -4,7 +4,9 @@
 import os
 import json
 from pymatgen.io.vasp import Poscar
-
+from pymatgen.io.vasp import Outcar
+import re
+from monty.io import reverse_readfile
 
 def check_path(path,creat_if_not=True):
     if not os.path.exists(path):
@@ -83,4 +85,24 @@ def find_atomic_number(poscarpath):
     temp = struc.structure.atomic_numbers
 
     return list(temp)
+
+def grep_TOTEN(outcarpath):
+    ''' get TOTEN from outcar
+    return the value, if not found, return None
+    faster than using pymatgen's outcar.final_energy which requires time-consuming initialization
+    the code here refer to pymatgen's source code
+    '''
+    temp=[]
+    e_fr_energy_pattern=re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
+    for line in reverse_readfile(outcarpath):
+        clean = line.strip() 
+        m = e_fr_energy_pattern.search(clean)
+        if m:
+            temp.append(m.group(1))
+        if len(temp)>0:
+            return float(temp[0])
+    return None
+    # following code is too time consuming due to class Outcar's initialization
+            #outcar=Outcar(filename+'/OUTCAR')
+            #print(outcar.final_energy)
 

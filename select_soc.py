@@ -52,7 +52,7 @@ if __name__=='__main__':
             os.system('cd {} && python {}'.format(socfilepath+i+'_soc','../../../'+plotfile))
         if not os.path.exists(socfilepath+i+'_nosoc/openmx.Band.json'):
             os.system('cd {} && python {}'.format(socfilepath+i+'_nosoc','../../../'+plotfile))
-        if True:#not os.path.exists(tofile+i+'/nosoc-soc.compare.json'):
+        if not os.path.exists(tofile+i+'/nosoc-soc.compare.json'):
             shutil.copy(socfilepath+i+'_soc/openmx.Band.json',tofile+i+'/soc.Band.json')
             shutil.copy(socfilepath+i+'_nosoc/openmx.Band.json',tofile+i+'/nosoc.Band.json')
             os.system('cd {}&& python {} -u 6.0 -d -6.0'.format(tofile+i,'../../../../'+comparefile))  
@@ -64,5 +64,6 @@ if __name__=='__main__':
             socresult[i]=rule2(tofile+i+'/nosoc-soc.compare.json')
 
     pd.DataFrame.from_dict(socresult,orient='index').to_excel(tofile+'data.xlsx')
+    pd.DataFrame.from_dict(socresult,orient='index').to_excel('data/finalchoice/'+'ifsoc.xlsx')
     with open(finalsocfile,'w',encoding='utf-8') as f:
         json.dump(socresult,f)
