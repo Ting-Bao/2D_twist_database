@@ -40,7 +40,7 @@ def prepare_for_VASP(calcpath,name='default'):
     # in vaspkit 1.3, this command dosen't work: vaspkit -task 102 -kps Gamma -kpr 0.02
     #print (calcpath, ' prepared')
 
-if __name__=='__main__':
+def main():
     if not os.path.exists(savepath):
         os.makedirs(savepath)
     
@@ -91,7 +91,6 @@ if __name__=='__main__':
             temp.append('cd {}_ABp2 && qsub run.sh && cd ..\n'.format(name))
         f.writelines(temp)
 
-
-        
-
+if __name__=='__main__':
+    main()    
 

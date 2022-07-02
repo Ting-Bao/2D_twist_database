@@ -27,7 +27,7 @@ from utility.utils import *
 import shutil
 
 
-if __name__=='__main__':
+def main():
     #where to put the selected data
     configname='square_ICSD_{}+maxele_{}+maxatom_{}+ehull_{:.1f}'.format(check_ICSD,max_ele_type,max_atoms,ehull)
     jsdst='data/selected_data/{}/jsonfile/'.format(configname)
@@ -74,3 +74,6 @@ if __name__=='__main__':
     with open('data/selected_data/{}/namelist.json'.format(configname),'w',encoding='utf-8') as f:
         json.dump({'namelist':newnamelist},f,indent=2)
     print('Finally got {} materials, copied to selected data'.format(count))
+
+if __name__=='__main__':
+    main()

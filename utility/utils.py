@@ -3,9 +3,9 @@
 
 import os
 import json
-from pymatgen.io.vasp import Poscar
-from pymatgen.io.vasp import Outcar
 import re
+import pandas as pd
+from pymatgen.io.vasp import Poscar, Outcar
 from monty.io import reverse_readfile
 
 def check_path(path,creat_if_not=True):
@@ -106,3 +106,8 @@ def grep_TOTEN(outcarpath):
             #outcar=Outcar(filename+'/OUTCAR')
             #print(outcar.final_energy)
 
+def read_excel(excelpath):
+    '''read excel (.xlsx) and return the pd.DataFrame
+    '''
+    temp=pd.read_excel(excelpath,index_col=0)
+    return temp

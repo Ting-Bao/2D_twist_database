@@ -17,7 +17,7 @@ topath=loc+'/data/ifsoc_data/'
 gencode=loc+'/utility/gen_openmx_input_dftu_v6_local.py'
 
 
-if __name__=='__main__':
+def main():
     namelist=read_namelist(used_data+'namelist.json')
     # print(namelist,len(namelist))
     for i in range(len(namelist)):
@@ -40,3 +40,6 @@ if __name__=='__main__':
             temp.append('cd {}_nosoc && qsub run_opmx_w001.sh &&cd ..\n'.format(i))
             temp.append('cd {}_soc && qsub run_opmx_w001.sh &&cd ..\n'.format(i))
         f.writelines(temp)
+
+if __name__=='__main__':
+    main()

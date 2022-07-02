@@ -21,14 +21,16 @@ typelist=['AA','AB','AAp1','ABp1','AAp2','ABp2'] # put from most favorable to mo
 compare_tol=0.0 # unit:eV
 # see try_stacking.py to find the definition 
 
+result_excel='data/finalchoice/stacking_choice.xlsx'
 
-if __name__=='__main__':
+def main():
     check_path(topath)
     namelist=read_namelist(used_data+'namelist.json')
     #print(namelist)
     Etable=pd.DataFrame(columns=typelist+['favorate_stack'])
 
     # check the TOTEN, collect into a table
+    # check the most favorable stacking, a tolerence is applied
     for i in namelist:
         temp=()
         lowest=0
@@ -45,14 +47,13 @@ if __name__=='__main__':
         item=pd.DataFrame([temp+(typelist[lowest],)],columns=typelist+['favorate_stack'],index=[i])
         Etable=pd.concat([Etable,item],ignore_index=False)
         # to be done: get soc and put into the table
-    Etable.to_excel('data/finalchoice/stacking_choice.xlsx')
+    Etable.to_excel(result_excel)
     print(Etable)
     
+    for i in namelist:
+        choice = Etable.at[i,'favorate_stack']
+        shutil.copy(src, dst)        
 
-    # check the most favorable stacking, a tolerence is applied
-    #for i in namelist:
-    #    print('')
-            
-
-            
+if __name__=='__main__':
+    main()
 

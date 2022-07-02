@@ -38,7 +38,7 @@ def rule2(comparejson):
         return False # false means not need for soc
     return True
 
-if __name__=='__main__':
+def main():
     check_path(tofile)
     namelist = read_namelist(used_data+'namelist.json')
     
@@ -67,3 +67,6 @@ if __name__=='__main__':
     pd.DataFrame.from_dict(socresult,orient='index').to_excel('data/finalchoice/'+'ifsoc.xlsx')
     with open(finalsocfile,'w',encoding='utf-8') as f:
         json.dump(socresult,f)
+
+if __name__=='__main__':
+    main()
