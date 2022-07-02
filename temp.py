@@ -1,5 +1,4 @@
 from utility.utils import *
 
-a='data/finalchoice/stacking_choice.xlsx'
-temp=read_excel(a)
-print(type(a))
+temp=read_json('data/finalchoice/ifsoc.json')
+print(type(temp['NiO2-c444fe118e1b']))

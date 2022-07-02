@@ -14,6 +14,13 @@ def check_path(path,creat_if_not=True):
             os.makedirs(path)
         return False
     return True
+
+def read_json(jsonpath):
+    '''return the content of a jsonfile
+    '''
+    with open(jsonpath,'r',encoding='utf-8') as f:
+        temp=json.load(f)
+    return temp
     
 def read_namelist(namelistpath):
     with open(namelistpath,'r') as f:

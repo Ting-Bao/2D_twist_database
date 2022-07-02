@@ -4,15 +4,22 @@
 # here we get the most favorable stacking of materials
 # require calculated stacking file using  VASP
 
+# we also pick the priority due to ICSD id
+# put the final choice into 2 sets: with/without ICSD id
+
+
 from utility.utils import *
 import os
 import numpy as np
 import pandas as pd
 import shutil
+import json
+
 
 used_data='data/selected_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
 filepath='data/calculated_ABstacking_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
 alldatapath='data/c2dbdata/jsondata/'
+socfile='data/finalchoice/ifsoc.json'
 
 topath='data/finalchoice/all/'
 # where to put the final choice of the materials
@@ -49,11 +56,39 @@ def main():
         # to be done: get soc and put into the table
     Etable.to_excel(result_excel)
     print(Etable)
+
+
+    ####################
+    # pick the priority
+    ####################
+    #read the soc info,use human 
+    socinfo=read_json(socfile)
+    priority_list=[]
+    normal_list=[]
+    path_p=topath+'../part1_prioirty/'
+    path_n=topath+'../part2_normal/'
+    check_path(path_p)
+    check_path(path_n)
     
     for i in namelist:
         choice = Etable.at[i,'favorate_stack']
-        shutil.copy(src, dst)        
+        choicefile = filepath+i+'_'+choice
+        check_path(topath+i)
+        if not os.path.exists(topath+i+'/relaxed_POSCAR'):
+            shutil.copy(choicefile+'/CONTCAR', topath+i+'/relaxed_POSCAR')
+        if not os.path.exists(topath+i+'/prepare.json'):
+            prepare_info={'from_stack':choice}
+            prepare_info['soc']=socinfo[i]
+            with open(topath+i+'/prepare.json', 'w',encoding='utf-8') as f:
+                json.dump(prepare_info,f)
+        # put into priority/normal list according to ICSD id
+        if if_ICSD(alldatapath+i+'.all_data.json'):
+            priority_list.append(i)
+            shutil.copytree(topath+i,path_p+i)
+        else:
+            normal_list.append(i)
+            shutil.copytree(topath+i,path_n+i)
+
 
 if __name__=='__main__':
     main()
-
