@@ -20,6 +20,7 @@ used_data='data/selected_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
 filepath='data/calculated_ABstacking_data/ICSD_False+maxele_3+maxatom_8+ehull_0.1/'
 alldatapath='data/c2dbdata/jsondata/'
 socfile='data/finalchoice/ifsoc.json'
+socfile_human='data/finalchoice/ifsoc_human.xlsx'
 
 topath='data/finalchoice/all/'
 # where to put the final choice of the materials
@@ -59,10 +60,18 @@ def main():
 
 
     ####################
-    # pick the priority
+    # pick the priority and add soc info
     ####################
     #read the soc info,use human 
-    socinfo=read_json(socfile)
+    #socinfo=read_json(socfile) # from auto judge
+    
+    # from human 
+    socinfo=pd.read_excel(socfile_human)
+    temp1,temp2 = socinfo['name'],socinfo['xurz']
+    socinfo=dict()
+    for i in range(len(temp1)):
+        socinfo[temp1[i]]=bool(temp2[i])
+
     priority_list=[]
     normal_list=[]
     path_p=topath+'../part1_prioirty/'

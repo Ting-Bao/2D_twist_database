@@ -6,6 +6,8 @@
 # 1. if all elements contained has atomic number <=18, then donot apply soc
 # 2. if both homo and lumo diff < 0.02, then donot apply soc 
 # 
+# put the result in path:finalsocfile
+# 
 # !!! human experts can further judge the results !!!
 
 from utility.utils import *
