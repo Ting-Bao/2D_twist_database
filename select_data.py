@@ -1,5 +1,6 @@
 # author:   Ting Bao @ Tsinghua University
 # email:    bao-ting@foxmail.com
+# date:     2022.07
 #
 # require the existed c2db database with rough selection of stable and nonmagnetic already done
 # which have xx.alldata.json and POSCAR_xx, where xx are corresponded

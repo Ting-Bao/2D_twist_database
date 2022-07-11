@@ -1,8 +1,4 @@
 from utility.utils import *
-import pandas as pd
 
-
-socfile_human='data/finalchoice/ifsoc_human.xlsx'
-
-
+add_to_json('./namelist_copy.json', 'namelist', 'xurz')
 

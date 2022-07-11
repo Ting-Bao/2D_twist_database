@@ -1,6 +1,7 @@
 # author:   Ting Bao @ Tsinghua University
 # email:    bao-ting@foxmail.com
-# 
+# date:     2022.07
+#
 # here we decide automatically if a material should consider SOC during SSC calc
 # rules are as follows:
 # 1. if all elements contained has atomic number <=18, then donot apply soc

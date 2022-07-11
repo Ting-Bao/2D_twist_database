@@ -85,6 +85,13 @@ def runsh_w001(name='default'):
         temp[i]=temp[i].replace('NAMENAME', name)
     return temp
 
+def opmxbatch_w001(name='default'):
+    with open('template/VASP/run_vasp_w001.sh') as f:
+        temp=f.readlines()
+    for i in range(len(temp)):
+        temp[i]=temp[i].replace('NAMENAME', name)
+    return temp
+
 def find_atomic_number(poscarpath):
     '''return a list containing atomic numbers
     '''
@@ -118,3 +125,14 @@ def read_excel(excelpath):
     '''
     temp=pd.read_excel(excelpath,index_col=0)
     return temp
+
+def add_to_json(jsonpath,key,content):
+    '''the key should have a list type value in the json file
+    this func append the content to the correspond list
+    '''
+    with open(jsonpath,'r') as f:
+        temp=json.load(f)
+        temp[key].append(content)
+    with open(jsonpath,'w',encoding='utf-8') as f:
+        json.dump(temp,f,indent=2)
+    return temp[key]

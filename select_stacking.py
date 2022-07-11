@@ -1,6 +1,7 @@
 # author:   Ting Bao @ Tsinghua University
 # email:    bao-ting@foxmail.com
-# 
+# date:     2022.07
+#
 # here we get the most favorable stacking of materials
 # require calculated stacking file using  VASP
 

@@ -1,5 +1,6 @@
 # author:   Ting Bao @ Tsinghua University
 # email:    bao-ting@foxmail.com
+# date:     2022.07
 #
 # for hexagonal lattice try following AA,AAp,AB... stacking and find the one with lower energy:
 # here angle gamma = 120 degree

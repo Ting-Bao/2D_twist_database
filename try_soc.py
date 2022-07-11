@@ -1,5 +1,6 @@
 # author:   Ting Bao @ Tsinghua University
 # email:    bao-ting@foxmail.com
+# date:     2022.07
 # 
 # use this code to find if a material requires SOC adjustment in electronic structrue calcualtion
 # use the primtive cell of selected data, use openmx to get the band structure with/without soc
