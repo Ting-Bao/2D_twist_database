@@ -48,10 +48,6 @@ def cutoff_radius(element_name, accuracy,basisfile):
 
     return radius_out  # in unit of Ang
 
-#print(cutoff_radius('Nb',3))
-
-    return radius_out  # in unit of Ang
-
 ### output openmx basis settings for specific element
 def find_basis(x, b , basisfile):
     # x = element name (str), b = basis accuracy (int)
