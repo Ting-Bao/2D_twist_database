@@ -85,14 +85,15 @@ def runsh_w001(name='default'):
         temp[i]=temp[i].replace('NAMENAME', name)
     return temp
 
-def opmxbatch_w001(template='template/OPMX/runopmx_w001.sh',name='default',configpath='.'):
-    '''the configpath should be the path on the server
+def from_template(template='template/OPMX/run_opmx_w001.sh',content=[]):
+    '''A general function, 'CONTENTI' will be replaced by contenti
+    content should be a list
     '''
     with open(template) as f:
         temp=f.readlines()
     for i in range(len(temp)):
-        temp[i]=temp[i].replace('NAMENAME', name)
-        temp[i]=temp[i].replace('CONFIGFILEPATH',configpath)
+        for j in range(len(content)):
+            temp[i]=temp[i].replace('CONTENT'+str(j+1), content[j])
     return temp
 
 def find_atomic_number(poscarpath):
