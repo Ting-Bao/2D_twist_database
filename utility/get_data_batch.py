@@ -29,10 +29,11 @@ args = parser.parse_args()
 # main func is at the end of this file
 
 np.random.seed(42)  # set random seed
+# from xurz
 
-def cutoff_radius(element_name, accuracy):
+def cutoff_radius(element_name, accuracy,basisfile):
     r_born_to_ang = 0.52917721  # convert Bohr to Ang
-    element_info = find_basis(element_name, accuracy)
+    element_info = find_basis(element_name, accuracy,basisfile=basisfile)
     basis = element_info[3]
     element_and_radius = basis.split('-')[0]
     radius_tmp = filter(lambda ch: ch in '0123456789.', element_and_radius)
@@ -43,7 +44,11 @@ def cutoff_radius(element_name, accuracy):
     radius_float = float(radius_str)
 
     radius_ang = radius_float * r_born_to_ang * 2
-    radius_out = float(math.ceil(radius_ang))
+    radius_out = float(math.ceil(2*radius_ang)/2) # this will have a step of 0.5 --Ting BAO
+
+    return radius_out  # in unit of Ang
+
+#print(cutoff_radius('Nb',3))
 
     return radius_out  # in unit of Ang
 
