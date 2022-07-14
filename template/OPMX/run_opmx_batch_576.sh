@@ -11,10 +11,10 @@ module load intel/19u5
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lihe/apps/hdf5-1.12.1-parallel/lib64  #openmx_eij
 
 # 72 144 216 288 360 432 504 576
-for i in {0..575}; do
+for i in {0..287}; do
 for j in 0; do
 
-cd /home/baot/WorkDir/2D_twist_database/NbTe2/NbTe2_soc_3x3_24x24x1_xyz0.1/config/$i"_"$j/
+cd CONFIGFILEPATH/config/$i"_"$j/
 #mkdir output
 
 mpirun -np ${nodes_num} /home/xurz/bin/openmx_399_19u5 openmx_in.dat > openmx.std
@@ -25,3 +25,8 @@ rm -r openmx_rst *.cube
 
 done
 done
+
+# use the python on the calculation server
+usePYTHON="/home/baot/bin/miniconda3/envs/deeph20220712/bin/python"
+# do preprocess and delete unnecessary file 
+# cd CONFIGFILEPATH

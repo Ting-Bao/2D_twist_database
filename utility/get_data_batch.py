@@ -1,5 +1,6 @@
 import os, json, argparse
 import numpy as np
+import math
 from pymatgen.core.structure import Structure
 from string import digits, ascii_letters
 # from xurz_funct import *
@@ -16,7 +17,7 @@ parser.add_argument('--dftu', default=False, type=bool,
                     help='Enable DFT+U calculation')
 parser.add_argument('--dftu_value', nargs='+', default=['Mn', 'd', '4.0'], type=str,
                     help='Set DFT + U value')
-parser.add_argument('--supercell', nargs='+', default=[4, 4], type=int,
+parser.add_argument('--supercell', nargs='+', default=[3, 3], type=int,
                     help='Make X*Y supercell')
 parser.add_argument('--num', default=[24, 24, 1], type=int,
                     help='Number of training structures, [n_a_shift,n_b_shift,n_pert]')
@@ -28,6 +29,23 @@ args = parser.parse_args()
 # main func is at the end of this file
 
 np.random.seed(42)  # set random seed
+
+def cutoff_radius(element_name, accuracy):
+    r_born_to_ang = 0.52917721  # convert Bohr to Ang
+    element_info = find_basis(element_name, accuracy)
+    basis = element_info[3]
+    element_and_radius = basis.split('-')[0]
+    radius_tmp = filter(lambda ch: ch in '0123456789.', element_and_radius)
+
+    radius_str = ''
+    for i in radius_tmp:
+        radius_str += i
+    radius_float = float(radius_str)
+
+    radius_ang = radius_float * r_born_to_ang * 2
+    radius_out = float(math.ceil(radius_ang))
+
+    return radius_out  # in unit of Ang
 
 ### output openmx basis settings for specific element
 def find_basis(x, b , basisfile):
@@ -70,7 +88,7 @@ def set_kp(str_tmp):
 
 def get_batch(fromfile='POSCAR',basisfile='/home/xurz/POT/opmx_basis.txt',\
     pot_path = '/home/xurz/POT/DFT_DATA19',out_path = os.path.join('.', 'config'),\
-    basis=1,magmon=[0.,0.,0.],soc=True,dftu=Fasle,dftu_value=['Mn', 'd', '4.0'],supercell=[4,4],num=[24,24,1],pert=[0.1,0.1,0.1]):
+    basis=1,magmom=[0.,0.,0.],soc=True,dftu=False,dftu_value=['Mn', 'd', '4.0'],supercell=[3,3],num=[24,24,1],pert=[0.1,0.1,0.1]):
     """generate opmx input, get the batch for further calculation (finally for the dataset)
     """
 
@@ -166,8 +184,8 @@ def get_batch(fromfile='POSCAR',basisfile='/home/xurz/POT/opmx_basis.txt',\
                 dftu_str = ''
                 for m in ion_orb_name:  # for orbital s,p,d,f
                     for n in range(ion_orb_num[ion_orb_name.index(m)]):  # for orb_occup num
-                        if args.dftu == True and m == args.dftu_value[1] and n == 0 and element_j == args.dftu_value[0]:
-                            dftu_str += str(n+1) + m + ' ' + args.dftu_value[2] + ' '
+                        if dftu == True and m == dftu_value[1] and n == 0 and element_j == dftu_value[0]:
+                            dftu_str += str(n+1) + m + ' ' + dftu_value[2] + ' '
                         else:
                             dftu_str += str(n+1) + m + ' 0.0 '  # write dft+u in order of element info
                 dftu_str = dftu_str[:-1]
@@ -258,13 +276,13 @@ Hubbard.U.values>
 
             if soc == True:  # set calc whether SOC
                 spin_mode, soc_mode = 'nc', 'on'
-            elif soc == False and max(args.magmom) != 0:
+            elif soc == False and max(magmom) != 0:
                 spin_mode, soc_mode = 'on', 'off'
             else:
                 spin_mode, soc_mode = 'off', 'off'
 
             # if args.dftu == True:  # set calc whether DFT+U
-            dftu_key = args.dftu * dftu_calc_setting
+            dftu_key = dftu * dftu_calc_setting
             # else:
             #     dftu_key = ''
             

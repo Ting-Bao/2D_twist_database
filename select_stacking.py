@@ -8,6 +8,8 @@
 # we also pick the priority due to ICSD id
 # put the final choice into 2 sets: with/without ICSD id
 
+# SOC info also included here
+
 
 from utility.utils import *
 import os

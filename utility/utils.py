@@ -85,11 +85,14 @@ def runsh_w001(name='default'):
         temp[i]=temp[i].replace('NAMENAME', name)
     return temp
 
-def opmxbatch_w001(name='default'):
-    with open('template/VASP/run_vasp_w001.sh') as f:
+def opmxbatch_w001(template='template/OPMX/runopmx_w001.sh',name='default',configpath='.'):
+    '''the configpath should be the path on the server
+    '''
+    with open(template) as f:
         temp=f.readlines()
     for i in range(len(temp)):
         temp[i]=temp[i].replace('NAMENAME', name)
+        temp[i]=temp[i].replace('CONFIGFILEPATH',configpath)
     return temp
 
 def find_atomic_number(poscarpath):
