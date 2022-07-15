@@ -1,0 +1,11 @@
+{
+    "python.autoComplete.addBrackets": true,
+    "python.languageServer": "Jedi",
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "pylint_django"
+    ],
+    "python.linting.flake8Enabled": false,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
+}

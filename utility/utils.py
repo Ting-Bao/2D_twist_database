@@ -93,7 +93,7 @@ def from_template(template='template/OPMX/run_opmx_w001.sh',content=[]):
         temp=f.readlines()
     for i in range(len(temp)):
         for j in range(len(content)):
-            temp[i]=temp[i].replace('CONTENT'+str(j+1), content[j])
+            temp[i]=temp[i].replace('CONTENT'+str(j+1), str(content[j]))
     return temp
 
 def find_atomic_number(poscarpath):

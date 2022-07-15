@@ -8,10 +8,14 @@
 from utility.utils import *
 from utility.get_data_batch import *
 
+
 namelistpath='data/finalchoice_calculation/part1_prioirty/namelist.json'
-#namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
 outfile='data/finalchoice_calculation/part1_prioirty/'
+genrunsh='data/finalchoice_calculation/runall_priority.sh'
+
+#namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
 #outfile='data/finalchoice_calculation/part2_normal/'
+#genrunsh='data/finalchoice_calculation/runall_normal.sh'
 
 serverpath = '/home/xyz/baot/dataset/' # used on w001, all parts put in this folder together 
 storepath = '/home/xyz/nas_disk/baot/dataset/'
@@ -37,7 +41,7 @@ def main():
         # 0-575
         if True or not os.path.exists(outfile+name+'run_opmx.sh'):
             template='template/OPMX/run_opmx_batch.sh'
-            temp=from_template(template=template,content=[name,serverpath+name,storepath+name])
+            temp=from_template(template=template,content=[name,serverpath+name,storepath])
             with open(outfile+name+'/run_opmx.sh','w',encoding='utf-8') as f:
                 f.writelines(temp)
 
@@ -50,12 +54,28 @@ def gen_preprocessini():
         with open(outfile+name+'/preprocess.ini','w',encoding='utf-8') as f:
             f.writelines(temp)
 
+def gen_graphini():
+    """ use epoches = 0 to gen the graph
+    """
+    namelist=read_namelist(namelistpath)
+    template='template/DeepH_config/'
+    for name in namelist:
+        temp=from_template(template=template)
+        with open(outfile+'../run_'+part+'.sh','w',encoding='utf-8') as f:
+            f.writelines(temp)
+
 def gen_run_all():
     namelist=read_namelist(namelistpath)
-    #for i in namelist:
+    cmd=[]
+    for name in namelist:
+        temp='cd '+serverpath+name+" && qsub run_opmx.sh\n"
+        cmd.append(temp)
+    with open(genrunsh,'w',encoding='utf-8') as f:
+        f.writelines(cmd)
     print("runall.sh generated!")
     
 if __name__=='__main__':
     main()
     gen_preprocessini()
+    #gen_graphini()
     gen_run_all()

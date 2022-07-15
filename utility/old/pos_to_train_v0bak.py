@@ -2,7 +2,8 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from string import digits
 
-basis_path = '/home/xurz/POT/opmx_basis.txt'
+#basis_path = '/home/xurz/POT/opmx_basis.txt'
+basis_path = 'template/OPMX/opmx_basis.txt'
 
 def find_basis(x, b):
     # x = element name (str), b = basis accuracy (int, 1/2/3)
@@ -129,7 +130,7 @@ def gen_orbital_set(n_element, atomic_number, N_orbital, orbitals, type):  # typ
     return orbital_set, atomic_number_set  # type: both 2D list
 
 ##############################################################################################
-def gen_train_ini(orbital_set, atomic_number_set, graph_dir, save_dir, raw_dir, dateset_name, cuda, eporchs, lr):
+def gen_train_ini(orbital_set, atomic_number_set, graph_dir, save_dir, raw_dir, dateset_name, cuda, epochs, lr):
     # generate & write train.ini file
     if len(orbital_set) == 1:  # all-in-one case
         orbital_set_1 = orbital_set[0]
@@ -168,7 +169,7 @@ separate_onsite = False
 new_sp = False
 
 [train]
-epochs = {eporchs}
+epochs = {epochs}
 pretrained =
 resume =
 train_ratio = 0.6

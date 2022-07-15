@@ -28,8 +28,7 @@ args = parser.parse_args()
 
 # main func is at the end of this file
 
-np.random.seed(42)  # set random seed
-# from xurz
+np.random.seed(567)  # set random seed
 
 def cutoff_radius(element_name, accuracy,basisfile):
     r_born_to_ang = 0.52917721  # convert Bohr to Ang
