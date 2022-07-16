@@ -2,20 +2,20 @@
 # email:    bao-ting@foxmail.com
 # date:     2022.07
 #
-# this file generate input file of dataset, the calculation should be done in w001
-# 
+# this file generate input file of dataset, the calculation should be done in w001 
 
 from utility.utils import *
 from utility.get_data_batch import *
 
-
 namelistpath='data/finalchoice_calculation/part1_prioirty/namelist.json'
 outfile='data/finalchoice_calculation/part1_prioirty/'
 genrunsh='data/finalchoice_calculation/runall_priority.sh'
+mvsh='data/finalchoice_calculation/mv_all_priority.sh'
 
 #namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
 #outfile='data/finalchoice_calculation/part2_normal/'
 #genrunsh='data/finalchoice_calculation/runall_normal.sh'
+#mvsh='data/finalchoice_calculation/mv_all_normal.sh'
 
 serverpath = '/home/xyz/baot/dataset/' # used on w001, all parts put in this folder together 
 storepath = '/home/xyz/nas_disk/baot/dataset/'
@@ -58,24 +58,39 @@ def gen_graphini():
     """ use epoches = 0 to gen the graph
     """
     namelist=read_namelist(namelistpath)
-    template='template/DeepH_config/'
+    template='template/DeepH_config/gen_graph.ini'
     for name in namelist:
-        temp=from_template(template=template)
-        with open(outfile+'../run_'+part+'.sh','w',encoding='utf-8') as f:
+        soctag='soc' if read_soc(outfile+name+'/prepare.json') else 'nosoc'
+        temp=from_template(template=template,content=[serverpath+name+'/graph',serverpath+name+'/result',serverpath+name+'/processed',name.replace('-','_')+'_'+soctag+'3x3_24x24x1_xyz0.1'])
+        with open(outfile+name+'/gen_graph.ini','w',encoding='utf-8') as f:
+            f.writelines(temp)
+
+def gen_mvtonas():
+    namelist=read_namelist(namelistpath)
+    template='template/general/mv_to_nas.sh'
+    for name in namelist:
+        temp=from_template(template=template,content=[name,serverpath+name,storepath])
+        with open(outfile+name+'/mv_to_nas.sh','w',encoding='utf-8') as f:
             f.writelines(temp)
 
 def gen_run_all():
     namelist=read_namelist(namelistpath)
     cmd=[]
+    mv_to_nas=[]
     for name in namelist:
-        temp='cd '+serverpath+name+" && qsub run_opmx.sh\n"
-        cmd.append(temp)
+        temp1='cd '+serverpath+name+" && qsub run_opmx.sh\n"
+        cmd.append(temp1)
+        temp2='cd '+serverpath+name+" && chmod +x mv_to_nas.sh && ./mv_to_nas.sh\n"
+        mv_to_nas.append(temp2)
     with open(genrunsh,'w',encoding='utf-8') as f:
         f.writelines(cmd)
-    print("runall.sh generated!")
+    with open(mvsh,'w',encoding='utf-8') as f:
+        f.writelines(mv_to_nas)
+    print("runall.sh and mv_to_nas.sh generated!")
     
 if __name__=='__main__':
     main()
     gen_preprocessini()
-    #gen_graphini()
+    gen_graphini()
+    gen_mvtonas()
     gen_run_all()
