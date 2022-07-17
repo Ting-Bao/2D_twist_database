@@ -38,4 +38,5 @@ cd ${CalcPath}
 deeph-preprocess --config ${CalcPath}/preprocess.ini >> output
 deeph-train --config ${CalcPath}/gen_graph.ini >> output
 
+date >> ${CalcPath}/../finish.txt
 echo "${Name}" >> ${CalcPath}/../finish.txt

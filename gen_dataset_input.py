@@ -6,16 +6,19 @@
 
 from utility.utils import *
 from utility.get_data_batch import *
-
+''' #part1
 namelistpath='data/finalchoice_calculation/part1_prioirty/namelist.json'
 outfile='data/finalchoice_calculation/part1_prioirty/'
 genrunsh='data/finalchoice_calculation/runall_priority.sh'
 mvsh='data/finalchoice_calculation/mv_all_priority.sh'
+'''
 
-#namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
-#outfile='data/finalchoice_calculation/part2_normal/'
-#genrunsh='data/finalchoice_calculation/runall_normal.sh'
-#mvsh='data/finalchoice_calculation/mv_all_normal.sh'
+#part2
+namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
+outfile='data/finalchoice_calculation/part2_normal/'
+genrunsh='data/finalchoice_calculation/runall_normal.sh'
+mvsh='data/finalchoice_calculation/mv_all_normal.sh'
+
 
 serverpath = '/home/xyz/baot/dataset/' # used on w001, all parts put in this folder together 
 storepath = '/home/xyz/nas_disk/baot/dataset/'
@@ -80,7 +83,7 @@ def gen_run_all():
     for name in namelist:
         temp1='cd '+serverpath+name+" && qsub run_opmx.sh\n"
         cmd.append(temp1)
-        temp2='cd '+serverpath+name+" && chmod +x mv_to_nas.sh && ./mv_to_nas.sh\n"
+        temp2='cd '+serverpath+name+" && chmod +x mv_to_nas.sh && ./mv_to_nas.sh && sleep 20 \n"
         mv_to_nas.append(temp2)
     with open(genrunsh,'w',encoding='utf-8') as f:
         f.writelines(cmd)

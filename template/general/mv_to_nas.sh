@@ -20,9 +20,10 @@ done
 
 # make sure file stored correctly
 # then remove the config file
-if [ -f  /home/xyz/nas_disk/baot/processed_dataset/${Name}/processed/575_0/rh.h5]
+if [ -f  /home/xyz/nas_disk/baot/dataset/processed/${Name}/processed/575_0/rh.h5 ]
 then
     rm -rf ${CalcPath}/config
 fi
 
+date >> ${StorePath}/../finish.txt
 echo "${Name}" >> ${StorePath}/../finish.txt
