@@ -7,8 +7,8 @@ mkdir ${StorePath}/graph/${Name}
 mkdir ${StorePath}/config_reserved/${Name}
 mkdir ${StorePath}/config_reserved/${Name}/config
 
-mv ${CalcPath}/processed ${StorePath}/processed/${Name}/processed
-mv ${CalcPath}/graph ${StorePath}/processed/${Name}/graph
+mv ${CalcPath}/processed ${StorePath}/processed/${Name}/
+mv ${CalcPath}/graph ${StorePath}/graph/${Name}/
 mv ${CalcPath}/output ${StorePath}/config_reserved/${Name}/output
 
 for i in {0..575}; do
