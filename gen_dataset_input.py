@@ -6,14 +6,17 @@
 
 from utility.utils import *
 from utility.get_data_batch import *
-''' #part1
-namelistpath='data/finalchoice_calculation/part1_prioirty/namelist.json'
-outfile='data/finalchoice_calculation/part1_prioirty/'
+import numpy as np
+import pandas as pd
+
+'''#part1
+namelistpath='data/finalchoice_calculation/part1_priority/namelist.json'
+outfile='data/finalchoice_calculation/part1_priority/'
 genrunsh='data/finalchoice_calculation/runall_priority.sh'
 mvsh='data/finalchoice_calculation/mv_all_priority.sh'
-'''
 
-#part2
+
+'''#part2
 namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
 outfile='data/finalchoice_calculation/part2_normal/'
 genrunsh='data/finalchoice_calculation/runall_normal.sh'
@@ -36,11 +39,15 @@ def get_ele_name(poscarpath):
 
 def main():
     namelist=read_namelist(namelistpath)
+    #temp=pd.DataFrame(namelist,columns=['priority'])
+    #temp.to_excel("priority.xlsx")
     for name in namelist:
+        ''' #gen config
         if not os.path.exists(outfile+name+'/config'):
             soc=read_soc(outfile+name+'/prepare.json')
             get_batch(fromfile=outfile+name+'/'+'relaxed_POSCAR',out_path=outfile+name+'/config/',\
                 basisfile='template/OPMX/opmx_basis.txt',soc=soc)
+        '''
         # 0-575
         if True or not os.path.exists(outfile+name+'run_opmx.sh'):
             template='template/OPMX/run_opmx_batch.sh'
@@ -90,10 +97,20 @@ def gen_run_all():
     with open(mvsh,'w',encoding='utf-8') as f:
         f.writelines(mv_to_nas)
     print("runall.sh and mv_to_nas.sh generated!")
-    
+
+def gen_mv_resultfile():
+    namelist=read_namelist(namelistpath)
+    cmd=[]
+    for name in namelist:
+        temp1='mv '+serverpath+name+"/result "+storepath+'graph/'+name+'/\n'
+        cmd.append(temp1)
+    with open(outfile+'mv_res.sh','w',encoding='utf-8') as f:
+        f.writelines(cmd)
+
 if __name__=='__main__':
-    main()
-    gen_preprocessini()
-    gen_graphini()
+    #main()
+    #gen_preprocessini()
+    #gen_graphini()
     gen_mvtonas()
-    gen_run_all()
+    #gen_run_all()
+    #gen_mv_resultfile()

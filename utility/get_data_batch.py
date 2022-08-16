@@ -27,7 +27,6 @@ args = parser.parse_args()
 '''
 
 # main func is at the end of this file
-
 np.random.seed(567)  # set random seed
 
 def cutoff_radius(element_name, accuracy,basisfile):
@@ -101,6 +100,7 @@ def get_batch(fromfile='POSCAR',basisfile='/home/xurz/POT/opmx_basis.txt',\
     unit_atom_total_num = sum(list(map(int,unit_element_num)))  # store total number of ions/atoms in unit cell
     # unit_fc = str_unit.frac_coords  # store atomic fractional coordinates
     # print(unit_element_name, unit_element_num, unit_atom_total_num)
+    # print(unit_fc)
     # print(unit_fc)
 
     shift_list = shift_2d_linear(num[0], num[1])
