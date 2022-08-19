@@ -4,7 +4,7 @@ import math
 from pymatgen.core.structure import Structure
 from string import digits, ascii_letters
 # from xurz_funct import *
-
+###
 '''
 parser = argparse.ArgumentParser()
 parser.add_argument('--basis', default=2, type=int,
