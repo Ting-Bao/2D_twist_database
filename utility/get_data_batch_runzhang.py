@@ -251,13 +251,13 @@ def make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert,
 
 def batch_file_output(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer, basis_accu, soc, dftu, dftuval, magmom):
     struct_after_super_shift_pert_list, shift_list = make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer)
-    print(len(struct_after_super_shift_pert_list))
+    # print(len(struct_after_super_shift_pert_list))
     for shift_idx_1 in range(shift[0]):
         for shift_idx_2 in range(shift[1]):
             for pert_idx in range(num_pert):
                 idx_list = [str(shift_idx_1), str(shift_idx_2), str(pert_idx)]
                 idx = '_'.join(idx_list)
-                folder_path = os.path.join('.', 'config', idx)
+                folder_path = os.path.join('.', 'config', idx) # folder naming rule, shift1_shift2_pert
                 openmx_in_file = os.path.join(folder_path, 'openmx_in.dat')
                 os.makedirs(folder_path, exist_ok=True) # path for saving files
 
