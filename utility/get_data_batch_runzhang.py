@@ -279,7 +279,7 @@ np.random.seed(42)  # set random seed
 # batch_file_output(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer, 
 #                   basis_accu, soc, dftu, dftuval, magmom)
 dftuval = ['Mn', 'd', '4.0']
-magmom = [5.0]*9+[-5.0]*9+[0.0]*12*9
+magmom = [5.0]*9 + [-5.0]*9 + [0.0]*12*9
 batch_file_output('POSCAR', [3, 3], [16, 16], 1,
                   1, [0.15, 0.15, 0.15], 2, 1,
                   1, True, True, dftuval, magmom)
