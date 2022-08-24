@@ -56,6 +56,7 @@ def read_struct_2d(poscar):
     return unit_struct, lattice, unit_element_name, unit_element_num, unit_atom_total_num, species, frac_coords, cart_coords
 
 ### experimental !!!
+### so far only use for homo-multilayer
 def locate_vdw_layer(struct, num_layer):
     # locate atom index within each vdw layer, read in pymatgen structure and number of vdw layers
     # output (2d list): for 2nd atom in 1st layer use vdw_layer_list[0][1]
