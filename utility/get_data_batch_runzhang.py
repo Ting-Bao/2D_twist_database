@@ -257,7 +257,7 @@ def batch_file_output(poscar, super, shift, type, num_pert, pert, num_layer, shi
             for pert_idx in range(num_pert):
                 idx_list = [str(shift_idx_1), str(shift_idx_2), str(pert_idx)]
                 idx = '_'.join(idx_list)
-                folder_path = os.path.join('.', 'config', idx) # folder naming rule, shift1_shift2_pert
+                folder_path = os.path.join('.', 'config', idx) # folder naming rule, shift1_shift2_pert, example: 5_5_0
                 openmx_in_file = os.path.join(folder_path, 'openmx_in.dat')
                 os.makedirs(folder_path, exist_ok=True) # path for saving files
 
