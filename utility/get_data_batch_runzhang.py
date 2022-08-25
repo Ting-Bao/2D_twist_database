@@ -55,8 +55,7 @@ def read_struct_2d(poscar):
     species = unit_struct.species # list, ['Bi', 'Bi', 'Se', 'Se', 'Se']
     return unit_struct, lattice, unit_element_name, unit_element_num, unit_atom_total_num, species, frac_coords, cart_coords
 
-### experimental !!!
-### so far only use for homo-multilayer
+### experimental, so far only use for homo-multilayer
 def locate_vdw_layer(struct, num_layer):
     # locate atom index within each vdw layer, read in pymatgen structure and number of vdw layers
     # output (2d list): for 2nd atom in 1st layer use vdw_layer_list[0][1]
@@ -96,7 +95,7 @@ def make_shift_struct(struct, shift, type, num_layer, shift_which_layer):
         shift_fc = shift  # linear
     elif type == 2:
         shift_fc = np.random.rand()-0.5, np.random.rand()-0.5  # random
-    vdw_layer_list = locate_vdw_layer(struct, num_layer) # num of atoms for each vdw layer
+    vdw_layer_list = locate_vdw_layer(struct, num_layer) # ion idx of each vdw layer
     unit_fc_tmp = struct.frac_coords
     for n in vdw_layer_list[shift_which_layer]:
         unit_fc_tmp[n, 0] += shift_fc[0]
