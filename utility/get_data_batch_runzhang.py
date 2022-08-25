@@ -74,6 +74,19 @@ def locate_vdw_layer(struct, num_layer):
         vdw_layer_list.append(layer_idx)
     return vdw_layer_list
 
+# new locate_vdw_layer with list input of num of atoms within each vdw layer (from bottom to top)
+def locate_vdw_layer_new(struct, num_atom_each_layer):
+    cart_coords = struct.cart_coords
+    cart_coords_z = cart_coords[:, 2]
+    idx_coords_z = np.argsort(cart_coords_z) # return original idx of elements in sorted list (from small to large)
+    vdw_layer_list = []
+    pre = 0
+    for i in num_atom_each_layer:
+        idx_each_vdw_layer = list(idx_coords_z[pre : pre + i])
+        vdw_layer_list.append(idx_each_vdw_layer)
+        pre += i
+    return vdw_layer_list
+
 def make_pert_struct(struct, pert):
     # read in structure from pymatgen
     # pert (list): max magnitude of random atomic perturbation along x/y/z
@@ -85,7 +98,7 @@ def make_pert_struct(struct, pert):
     struct_after_pert = Structure(struct.lattice, struct.species, cart_coords, coords_are_cartesian=True, to_unit_cell=True)
     return struct_after_pert
 
-def make_shift_struct(struct, shift, type, num_layer, shift_which_layer):
+def make_shift_struct(struct, shift, type, num_atom_each_layer, shift_which_layer):
     # read in structure from pymatgen
     # shift (list): shift of frac coords along lattice a/b
     # type (int): interlayer shift, 1=linera, 2=random
@@ -95,7 +108,8 @@ def make_shift_struct(struct, shift, type, num_layer, shift_which_layer):
         shift_fc = shift  # linear
     elif type == 2:
         shift_fc = np.random.rand()-0.5, np.random.rand()-0.5  # random
-    vdw_layer_list = locate_vdw_layer(struct, num_layer) # ion idx of each vdw layer
+    # vdw_layer_list = locate_vdw_layer(struct, num_layer) # ion idx of each vdw layer
+    vdw_layer_list = locate_vdw_layer_new(struct, num_atom_each_layer) # ion idx of each vdw layer, change input from "num_layer" to "num_atom_each_layer"
     unit_fc_tmp = struct.frac_coords
     for n in vdw_layer_list[shift_which_layer]:
         unit_fc_tmp[n, 0] += shift_fc[0]
@@ -222,7 +236,7 @@ MD.Type                           Nomd      # Nomd (SCF) / NVT_NH (MD)
 """
     return in_file
 
-def make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer):
+def make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert, num_atom_each_layer, shift_which_layer):
     # poscar (str): POSCAR file path
     # super (list): period of supercell along lattice vector [3, 3]
     # shift (list): number of shift along lattice vector [16, 16]
@@ -240,7 +254,7 @@ def make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert,
     for shift_idx_1 in range(shift[0]):
         for shift_idx_2 in range(shift[1]):
             idx = shift_idx_2 + shift_idx_1 * shift[1]
-            struct_shift, shift_fc = make_shift_struct(unit_struct, shift_fc_list[idx], type, num_layer, shift_which_layer) # shift linearly 2nd layer of bilayer
+            struct_shift, shift_fc = make_shift_struct(unit_struct, shift_fc_list[idx], type, num_atom_each_layer, shift_which_layer) # shift linearly 2nd layer of bilayer
             struct_shift.make_supercell(([[super[0], 0, 0], [0, super[1], 0], [0, 0, 1]]))
             for pert_idx in range(num_pert):
                 struct_shift_pert = make_pert_struct(struct_shift, pert)
@@ -248,8 +262,8 @@ def make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert,
                 shift_list.append(shift_fc)
     return struct_list, shift_list
 
-def batch_file_output(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer, basis_accu, soc, dftu, dftuval, magmom):
-    struct_after_super_shift_pert_list, shift_list = make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer)
+def batch_file_output(poscar, super, shift, type, num_pert, pert, num_atom_each_layer, shift_which_layer, basis_accu, soc, dftu, dftuval, magmom):
+    struct_after_super_shift_pert_list, shift_list = make_all_super_shift_pert_struct(poscar, super, shift, type, num_pert, pert, num_atom_each_layer, shift_which_layer)
     # print(len(struct_after_super_shift_pert_list))
     for shift_idx_1 in range(shift[0]):
         for shift_idx_2 in range(shift[1]):
@@ -276,11 +290,17 @@ pot_path = '/home/xurz/POT/DFT_DATA19'
 basis_info_path = '/home/xurz/POT/opmx_basis.txt'
 np.random.seed(42)  # set random seed
 
-# batch_file_output(poscar, super, shift, type, num_pert, pert, num_layer, shift_which_layer, 
-#                   basis_accu, soc, dftu, dftuval, magmom)
+# batch_file_output(poscar, super, shift, type, 
+#                   num_pert, pert, num_layer, shift_which_layer, 
+#                   basis_accu, soc, dftu, dftuval, magmom) # use locate_vdw_layer
+# batch_file_output(poscar, super, shift, type, 
+#                   num_pert, pert, num_atom_each_layer, shift_which_layer, 
+#                   basis_accu, soc, dftu, dftuval, magmom) # use locate_vdw_layer_new
 dftuval = ['Mn', 'd', '4.0']
-magmom = [5.0]*9 + [-5.0]*9 + [0.0]*12*9
+magmom = [5.0]*9 + [-5.0]*9 + [0.0]*12*9  # example MnBi2Te4 3x3 bilayer supercell
+# batch_file_output('POSCAR', [3, 3], [16, 16], 1,
+#                   1, [0.15, 0.15, 0.15], 2, 1,
+#                   1, True, True, dftuval, magmom)
 batch_file_output('POSCAR', [3, 3], [16, 16], 1,
-                  1, [0.15, 0.15, 0.15], 2, 1,
+                  1, [0.15, 0.15, 0.15], [7, 7], 1,
                   1, True, True, dftuval, magmom)
-
