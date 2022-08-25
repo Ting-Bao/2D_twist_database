@@ -44,7 +44,8 @@ def set_kp(struct):
 
 def read_struct_2d(poscar):
     # read in POSCAR and store required info by DeepH
-    unit_struct = Structure.from_file(poscar) # unit cell
+    struct = Structure.from_file(poscar) # unit cell
+    unit_struct = Structure(struct.lattice, struct.species, struct.frac_coords, coords_are_cartesian=False, to_unit_cell=True)
     unit_formula = unit_struct.formula.split()   # get chemical formula, example: Bi2Se3 = Bi2 Se3
     unit_element_name = list(map(lambda unit_formula: unit_formula.translate(str.maketrans('','',digits)), unit_formula)) # ['Bi', 'Se']
     unit_element_num = list(map(lambda unit_formula: int(unit_formula.translate(str.maketrans('','',ascii_letters))), unit_formula)) # 2 3
