@@ -19,18 +19,10 @@ Name=CONTENT1
 for i in {0..575}; do
 for j in 0; do
 
-source /home/liyang1/Software/EnvsProg/IntelLib/oneapi2022.w001/setvars.sh
 cd ${CalcPath}/config/$i"_"$j/
 #mkdir output
-target="The calculation was normally finished."
-findfile=${CalcPath}/config/$i"_"$j/openmx.std
-if [`grep -c "$target" $findfile` -ne '0'];then
-    echo "jump $findfile"
-else
-    mpirun -np 64 /home/liyang1/Software/CalcProg/OpenMX/platform/w001/openmx3.9-patched_oneapi/work/openmx openmx_in.dat  > openmx.std
-fi
 
-
+mpirun -np ${nodes_num} /home/xurz/bin/openmx_399_19u5 openmx_in.dat > openmx.std
 #mpirun -np 32 /home/lihe/apps/openmx/3.9.7_19u5_Eij/openmx openmx_in.dat -nt 2 > openmx.std
 cat openmx.out >> openmx.scfout
 rm -r openmx_rst *.cube

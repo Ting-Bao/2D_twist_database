@@ -9,7 +9,8 @@ from utility.get_data_batch import *
 import numpy as np
 import pandas as pd
 
-'''#part1
+#part1
+'''
 namelistpath='data/finalchoice_calculation/part1_priority/namelist.json'
 outfile='data/finalchoice_calculation/part1_priority/'
 genrunsh='data/finalchoice_calculation/runall_priority.sh'
@@ -108,9 +109,9 @@ def gen_mv_resultfile():
         f.writelines(cmd)
 
 if __name__=='__main__':
-    #main()
-    #gen_preprocessini()
-    #gen_graphini()
+    main()
+    gen_preprocessini()
+    gen_graphini()
     gen_mvtonas()
-    #gen_run_all()
-    #gen_mv_resultfile()
+    gen_run_all()
+    gen_mv_resultfile()
