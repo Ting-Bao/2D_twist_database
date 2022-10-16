@@ -14,9 +14,19 @@
 
 
 # suggest to use absolute path here, following is path on B401GPU
+'''
 pythonpath='python'
 pfolder='/home/baot/TS216NAS/Public/baot/dataset/processed/' #processed folder
 gfolder='/home/baot/TS216NAS/Public/baot/dataset/e3graph/' #where to put the graph
+e3process='/home/baot/bin/DeepH-E3-221004_modified/deephe3-preprocess.py'
+dataset_note='_3x3_576_xyz_0.1'
+'''
+
+
+# following is path of B403-ubuntu (which has direct access to TEFS COS browser), for debug and config file update only
+pythonpath='python'
+pfolder='/home/tingbao/Desktop/TS216NAS/Public/baot/dataset/processed/' #processed folder
+gfolder='/home/tingbao/Desktop/TS216NAS/Public/baot/temp/e3graph/' #where to put the graph
 e3process='/home/baot/bin/DeepH-E3-221004_modified/deephe3-preprocess.py'
 dataset_note='_3x3_576_xyz_0.1'
 
@@ -43,7 +53,7 @@ cmd_bash=[]
 mat2gen=[]
 for i in materials:
     #print(os.path.join(gfolder,i,'graph'))
-    if not os.path.exists(os.path.join(gfolder,i,'graph')):
+    if True or not os.path.exists(os.path.join(gfolder,i,'graph')):
         if not os.path.exists(os.path.join(gfolder,i)):
             os.makedirs(os.path.join(gfolder,i))
         mat2gen.append(i)
@@ -62,7 +72,6 @@ for i in materials:
         with open(os.path.join(gfolder,i,'train.ini'),'w',encoding='utf-8') as f:
             f.writelines(trainini)
         cmd_bash.append('{} {} {} -n 8 \n'.format(pythonpath,e3process,os.path.join(gfolder,i,'gen_e3graph.ini')))
-
 
 
 with open(gfolder+'cmd.sh','w',encoding='utf-8') as f:
