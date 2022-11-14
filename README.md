@@ -1,20 +1,26 @@
 # 2D_twist_database
 
+To do:
+
+1x2 twisted structure comparision
+
 #### Main developers
-- **Ting Bao**
++ **Ting Bao**
 
    Tsinghua University
 
    bao-ting [at] foxmail [dot] com
 
-+ **Runzhang XU**
++ **Runzhang Xu**
    
     Tsinghua University
 
 #### Collaborators
 + **He Li**
 
-- **Xiaomi Guo**
++ **Xiaoxun Gong**
+
++ **Xiaomi Guo**
 
 + **Jizhang Wang**
 
