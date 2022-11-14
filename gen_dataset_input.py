@@ -9,19 +9,32 @@ from utility.get_data_batch import *
 import numpy as np
 import pandas as pd
 
+
+
+## Be very careful in this part, some lines should be change before run
+
+
 #part1
 '''
 namelistpath='data/finalchoice_calculation/part1_priority/namelist.json'
 outfile='data/finalchoice_calculation/part1_priority/'
 genrunsh='data/finalchoice_calculation/runall_priority.sh'
 mvsh='data/finalchoice_calculation/mv_all_priority.sh'
+'''
 
-
-'''#part2
+#part2
 namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
 outfile='data/finalchoice_calculation/part2_normal/'
 genrunsh='data/finalchoice_calculation/runall_normal.sh'
 mvsh='data/finalchoice_calculation/mv_all_normal.sh'
+'''
+
+#part2-2type3atom
+namelistpath='data/finalchoice_calculation/part2_normal/namelist_2type_3ele.json'
+outfile='data/finalchoice_calculation/part2_normal/'
+genrunsh='data/finalchoice_calculation/runall_normal.sh'
+mvsh='data/finalchoice_calculation/mv_all_normal.sh'
+'''
 
 
 serverpath = '/home/xyz/baot/dataset/' # used on w001, all parts put in this folder together 
@@ -43,15 +56,16 @@ def main():
     #temp=pd.DataFrame(namelist,columns=['priority'])
     #temp.to_excel("priority.xlsx")
     for name in namelist:
-        ''' #gen config
+        #gen config
         if not os.path.exists(outfile+name+'/config'):
             soc=read_soc(outfile+name+'/prepare.json')
             get_batch(fromfile=outfile+name+'/'+'relaxed_POSCAR',out_path=outfile+name+'/config/',\
-                basisfile='template/OPMX/opmx_basis.txt',soc=soc)
-        '''
+                basisfile='template/OPMX/opmx_basis.txt',soc=soc,num=[16,16,1])
+            # 24 24 1 or 16 16 1, change!!
+        
         # 0-575
         if True or not os.path.exists(outfile+name+'run_opmx.sh'):
-            template='template/OPMX/run_opmx_batch.sh'
+            template='template/OPMX/run_opmx_batch_255.sh'
             temp=from_template(template=template,content=[name,serverpath+name,storepath])
             with open(outfile+name+'/run_opmx.sh','w',encoding='utf-8') as f:
                 f.writelines(temp)
@@ -86,6 +100,7 @@ def gen_mvtonas():
 
 def gen_run_all():
     namelist=read_namelist(namelistpath)
+    print(namelist)
     cmd=[]
     mv_to_nas=[]
     for name in namelist:
