@@ -44,7 +44,8 @@ source /home/xyz/.bashrc_baot
 
 cd ${CalcPath}
 deeph-preprocess --config ${CalcPath}/preprocess.ini >> output
-deeph-train --config ${CalcPath}/gen_graph.ini >> output
+#deeph-train --config ${CalcPath}/gen_graph.ini >> output
+# donot gen graph file for deeph net
 
 date >> ${CalcPath}/../finish.txt
 echo "${Name}" >> ${CalcPath}/../finish.txt

@@ -49,7 +49,10 @@ for i in materials:
         mat2gen.append(i)
         shutil.copy('template/TEFS/train.sh',os.path.join(gfolder,i))
         shutil.copy('template/TEFS/traine3-gpu_spot.json',os.path.join(gfolder,i))
-        soctag=read_info_isspinful(pfolder+i+'/processed/0_0/info.json')
+        try:
+            soctag=read_info_isspinful(pfolder+i+'/processed/0_0/info.json')
+        except:
+            soctag=read_info_isspinful(pfolder+i+'/processed/0_0_0/info.json')
         datasetname=i.replace('-', '_')+'_'+soctag+dataset_note
         #write gen_e3graph.ini
         gene3ini=from_template(template='template/DeepH_config/gen_e3graph.ini',\
