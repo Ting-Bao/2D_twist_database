@@ -56,6 +56,7 @@ def main():
     #temp=pd.DataFrame(namelist,columns=['priority'])
     #temp.to_excel("priority.xlsx")
     for name in namelist:
+        print(name)
         #gen config
         if not os.path.exists(outfile+name+'/config'):
             soc=read_soc(outfile+name+'/prepare.json')
@@ -100,7 +101,7 @@ def gen_mvtonas():
 
 def gen_run_all():
     namelist=read_namelist(namelistpath)
-    print(namelist)
+    #print(namelist)
     cmd=[]
     mv_to_nas=[]
     for name in namelist:
