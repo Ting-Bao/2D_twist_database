@@ -37,7 +37,7 @@ def conv(source, target, fmt='poscar'):
 def check_60(source, target):
     stru = Structure.from_file(source)
     gamma = stru.lattice.gamma
-    if gamma-120 < 1e-5:
+    if gamma-120 < 1e-3:
         conv(source, target)
     else:
         shutil.copy(source, target)
@@ -56,8 +56,6 @@ def get_z_length(poscarpath):
     return stru.lattice.c
 
 # not validated
-
-
 def move_anchor(poscarpath, jsonpath=None):
     '''json should have two tags:
     mv_a: anchor position in a, using direct coo
@@ -127,7 +125,7 @@ def sperate_poscar(poscarpath):
     print("bilayer poscar sperated")
 
 
-def get_twist_struc(m, n, poscar1, poscar2, layer_dis, tofile="POSCAR.T2D.vasp", start_z=0.3, super_a3_z=25.0):
+def get_twist_struc(m, n, poscar1, poscar2, layer_dis, tofile="POSCAR.T2D.vasp", start_z=0.1, super_a3_z=25.0):
     twist_demo = Twist2D()
     # --> 1st layer
     super_a1_mult = [m, n]
@@ -142,7 +140,7 @@ def get_twist_struc(m, n, poscar1, poscar2, layer_dis, tofile="POSCAR.T2D.vasp",
 
     # Fill the cell with the layers
     # start_z用分数坐标 change!!!
-    twist_demo.twist_layers(start_z=0.3, super_a3_z=25)
+    twist_demo.twist_layers(start_z=start_z, super_a3_z=super_a3_z)
 
     # (Optional) Calculate the twisted angles of each layer in degree
     twisted_angles = twist_demo.calc_layers_twist_angles()
