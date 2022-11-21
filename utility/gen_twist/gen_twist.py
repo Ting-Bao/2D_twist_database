@@ -5,7 +5,7 @@
 # only used in <a,b>=60 degree case
 # for 120 degree case, the poscar will turn to 60 first
 
-from twist2d import *
+from .twist2d import *
 from pymatgen.core.structure import Structure
 import numpy as np
 import shutil
@@ -150,10 +150,15 @@ def get_twist_struc(m, n, poscar1, poscar2, layer_dis, tofile="POSCAR.T2D.vasp",
 
     # Write results to the file
     twist_demo.write_res_to_poscar(filename=tofile)
+    stru = Structure.from_file(tofile)
+    atom_num=len(stru.species)
+    return twisted_angles,atom_num
 
 
 def gen_twist(m, n, fromfile='POSCAR', tofile='twistPOSCAR'):
-
+    
+    print('gen twisted structure \n from {} to {}'.format(fromfile,tofile))
+    
     # STEP 1:check the unitcell has gamma==60 degree first
     check_60(source=fromfile, target=fromfile+'_60')
     file60 = fromfile+'_60'  # this is the path of a make-sure 60 degree poscar file
@@ -169,8 +174,10 @@ def gen_twist(m, n, fromfile='POSCAR', tofile='twistPOSCAR'):
     sperate_poscar(poscarpath=file60)
 
     # STEP 5: gen twisted structure
-    get_twist_struc(m=m, n=n, poscar1=file60+'_up', poscar2=file60+'_down', layer_dis=layer_dis,
+    twisted_angles, atom_num = get_twist_struc(m=m, n=n, poscar1=file60+'_up', poscar2=file60+'_down', layer_dis=layer_dis,
                     tofile=tofile, super_a3_z=z_lenth)
+    
+    return twisted_angles, atom_num
 
 
 if __name__ == '__main__':
