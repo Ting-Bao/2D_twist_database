@@ -2,11 +2,12 @@
 # email:    bao-ting@foxmail.com
 # date:     2022.11
 #
-# this is to generate the 1x2 and part of 2x3 structures and conduct openmx calculation
+# this is to generate the 2x1 and part of 3x2 structures and conduct openmx calculation
 
 namelist='./data/finalchoice/all/namelist.json'
 frompath='./data/finalchoice/all/'
 topath='./data/twisted_band_opmx/'
+# topath 下对应材料存放在文件夹内，不能有多余的文件夹。
 
 
 from utility.utils import *

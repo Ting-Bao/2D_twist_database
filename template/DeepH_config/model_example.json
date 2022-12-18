@@ -1,0 +1,21 @@
+{
+    "material_name": "C2",
+    "C2DB_id": "a6735a4a3797",
+    "ICSD_id": null,
+    "SOC": false,
+    "nn_type": "E3",
+    "e3nn_ver": "0.3.5",
+    "supercell_a": 4,
+    "supercell_b": 4,
+    "interlayer_shift_a": 30,
+    "interlayer_shift_b": 10,
+    "perturbation_x": 0.05,
+    "perturbation_y": 0.05,
+    "perturbation_z": 0.2,
+    "IVDW": null,
+    "unit_cell_stacking": null,
+    "random_subset": false,
+    "subset_num": null,
+
+    "adjust_manual": true
+}

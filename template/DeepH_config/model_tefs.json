@@ -1,0 +1,21 @@
+{
+    "material_name": "CONTENT1",
+    "C2DB_id": "CONTENT2",
+    "ICSD_id": CONTENT3,
+    "SOC": CONTENT4,
+    "nn_type": "E3",
+    "e3nn_ver": "999",
+    "supercell_a": 3,
+    "supercell_b": 3,
+    "interlayer_shift_a": 16,
+    "interlayer_shift_b": 16,
+    "perturbation_x": 0.1,
+    "perturbation_y": 0.1,
+    "perturbation_z": 0.1,
+    "IVDW": 11,
+    "unit_cell_stacking": null,
+    "random_subset": false,
+    "subset_num": null,
+
+    "adjust_manual": false
+}
