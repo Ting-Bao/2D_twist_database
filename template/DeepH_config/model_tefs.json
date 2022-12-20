@@ -4,7 +4,7 @@
     "ICSD_id": CONTENT3,
     "SOC": CONTENT4,
     "nn_type": "E3",
-    "e3nn_ver": "999",
+    "e3nn_ver": "0.4.4",
     "supercell_a": 3,
     "supercell_b": 3,
     "interlayer_shift_a": 16,

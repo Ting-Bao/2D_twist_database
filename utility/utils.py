@@ -27,12 +27,15 @@ def read_namelist(namelistpath):
         temp=json.load(f)
     return temp['namelist']
 
-def if_ICSD(jsonpath):
+def if_ICSD(jsonpath,returnid=False):
     '''judge whether a material has a ICSD id, indicating its existance in real wold.'''
     with open(jsonpath,'r') as f:
         temp=json.load(f)
     if "icsd_id" in temp['info.json'].keys():
-        return True
+        if returnid==True:
+            return temp['info.json']['icsd_id']
+        else:
+            return True
     return False
 
 def check_ehull(jsonpath,ehull=0.1):
@@ -140,3 +143,30 @@ def add_to_json(jsonpath,key,content):
     with open(jsonpath,'w',encoding='utf-8') as f:
         json.dump(temp,f,indent=2)
     return temp[key]
+
+def search_file(dirpath, filename, result_path=[]):
+    '''
+    find file in path
+    attention: use result_path=[] manually initially
+    reference: https://blog.csdn.net/zy0412326/article/details/127947425
+    '''
+    dirs = os.listdir(dirpath)  # 查找该层文件夹下所有的文件及文件夹，返回列表
+    for currentFile in dirs:  # 遍历列表
+        absPath = dirpath + '/' + currentFile
+        if os.path.isdir(absPath):  # 如果是目录则递归，继续查找该目录下的文件
+            result_path = search_file(absPath, filename,result_path = result_path)
+        elif currentFile == filename:
+            #print(absPath)  # 文件存在，则打印该文件的绝对路径
+            result_path.append(absPath)
+    return result_path
+
+def grep_json_key(jsonpath,key):
+    '''
+    grep specific key value in the jsonfile
+    '''
+    with open(jsonpath,'r',encoding='utf-8') as f:
+        temp=json.load(f)
+    try:
+        return temp[key]
+    except:
+        return "wrong_key in grep_json_key func"
