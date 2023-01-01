@@ -31,11 +31,14 @@ def if_ICSD(jsonpath,returnid=False):
     '''judge whether a material has a ICSD id, indicating its existance in real wold.'''
     with open(jsonpath,'r') as f:
         temp=json.load(f)
-    if "icsd_id" in temp['info.json'].keys():
-        if returnid==True:
-            return temp['info.json']['icsd_id']
-        else:
-            return True
+    try:
+        if "icsd_id" in temp['info.json'].keys():
+            if returnid==True:
+                return temp['info.json']['icsd_id']
+            else:
+                return True
+    except:
+        return False
     return False
 
 def check_ehull(jsonpath,ehull=0.1):
@@ -144,6 +147,17 @@ def add_to_json(jsonpath,key,content):
         json.dump(temp,f,indent=2)
     return temp[key]
 
+def add_key_to_json(jsonpath,content):
+    '''
+    content is a dict
+    '''
+    with open(jsonpath,'r') as f:
+        temp=json.load(f)
+    temp.update(content) # merge the two dicts
+    with open(jsonpath,'w',encoding='utf-8') as f:
+        json.dump(temp,f,indent=2)
+    return temp
+
 def search_file(dirpath, filename, result_path=[]):
     '''
     find file in path
@@ -169,4 +183,5 @@ def grep_json_key(jsonpath,key):
     try:
         return temp[key]
     except:
-        return "wrong_key in grep_json_key func"
+        #raise AttributeError()
+        return "wrong_key"
