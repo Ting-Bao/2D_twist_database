@@ -111,17 +111,18 @@ def infer_and_eval(source, target):
         temppath = target + i
 
         # check if there corresponding openmx result, else skip
-        if not os.path.exists(opmx_path_local+'{}_2-1'.format(i)):
+        excludelist=['P4-']
+        if not os.path.exists(opmx_path_local+'{}_2-1'.format(i)) and i not in excludelist:
             print('skip ',i)
             continue
 
         if not os.path.exists(temppath):
                 os.mkdir(temppath)
 
-        for twist_case in ['2-1','3-2']:
+        for twist_case in ['2-1','3-2','7-4','9-5']:
             if not os.path.exists(opmx_path_local+'{}_{}'.format(i,twist_case)):
                 continue
-                # 有一些3-2因为原子数太多而被排除,所以不需要比较计算
+                # 有一些3-2因为原子数太多而被排除,所以不需要比较计算, 多数需要排除P4专有的7-4,9-5
             else:
                 twistpath_local=os.path.join(temppath,twist_case)
                 if not os.path.exists(twistpath_local):
@@ -162,6 +163,7 @@ def infer_and_eval(source, target):
 
             cmd.append('cp -r {} {}\n'.format(opmx_path+i+'_'+twist_case+'/*',temp_workpath+'predict_e3nn/'))
             cmd.append('cd {} && python {} eval.ini -n 8 >> eval_log && sleep 10 \n'.format(temp_workpath+'predict_e3nn/',e3eval_path))
+            # 多进程并行时候，-n 8 在有些case下不work，不知道为何
 
             '''
             get mae
@@ -182,6 +184,13 @@ def infer_and_eval(source, target):
             '''
             infer_band_pardiso.py 
             '''
+            
+
+            '''
+            band_projection 
+            '''
+            # tangzc didn't finish the soc part
+
             # TODO
             #cmd.append('cd {}/predict_e3nn && mv ./predict_e3nn/hamiltonians_pred.h5 ./ && python {}\n'.format(temp_workpath,pardiso_path))
 

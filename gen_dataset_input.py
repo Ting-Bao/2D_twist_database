@@ -13,9 +13,8 @@ import pandas as pd
 
 ## Be very careful in this part, some lines should be change before run
 
-
-#part1
 '''
+#part1
 namelistpath='data/finalchoice_calculation/part1_priority/namelist.json'
 outfile='data/finalchoice_calculation/part1_priority/'
 genrunsh='data/finalchoice_calculation/runall_priority.sh'
@@ -27,8 +26,9 @@ namelistpath='data/finalchoice_calculation/part2_normal/namelist.json'
 outfile='data/finalchoice_calculation/part2_normal/'
 genrunsh='data/finalchoice_calculation/runall_normal.sh'
 mvsh='data/finalchoice_calculation/mv_all_normal.sh'
-'''
 
+
+'''
 #part2-2type3atom
 namelistpath='data/finalchoice_calculation/part2_normal/namelist_2type_3ele.json'
 outfile='data/finalchoice_calculation/part2_normal/'
