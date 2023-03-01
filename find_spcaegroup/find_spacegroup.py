@@ -28,4 +28,3 @@ for i in range(len(data)):
         print(name, "{} ({})".format(spg, spg_num))
 
 data.to_excel(to_file)
-# for i in range(data.)
