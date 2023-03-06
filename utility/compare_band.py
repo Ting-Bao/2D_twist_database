@@ -253,13 +253,14 @@ def main(argv):
         x2 = kpoints_corrdinate_list_2
         for band_index in range(band_quantity_1):
             y = band_data_1[band_index]
-            band_plot.plot(x1, y, 'b-', linewidth=1.4)
+            bandplot1, = band_plot.plot(x1, y, 'b-', linewidth=1.4)
         for band_index in range(band_quantity_2):
             y = band_data_2[band_index]
-            band_plot.plot(x2, y, 'r-', linewidth=0.8)
+            bandplot2, = band_plot.plot(x2, y, 'r-', linewidth=0.8)
         # Plot the band structure
         plot_band_file_name = band_mark_1 + '-' + band_mark_2 \
             + '.compare.' + plot_format
+        plt.legend(handles=[bandplot1,bandplot2],labels=['w/ SOC','w/o SOC'],loc="upper right")
         plt.savefig(plot_band_file_name, format=plot_format, dpi=plot_dpi)
         # >>Show plot
         # >>plt.show()

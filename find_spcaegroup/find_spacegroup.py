@@ -7,6 +7,7 @@ to_file = 'find_spcaegroup/itemlist_spcaegroup.xlsx'
 
 data = pd.read_excel(file)
 
+data['layer_group'] = [None] * len(data)
 for i in range(len(data)):
     mat = data['material'][i]
     mat = mat.replace('$', '').replace('_', '')
@@ -26,12 +27,12 @@ for i in range(len(data)):
         spg_num = tmp['spgnum']
         # use new greped data in c2db
         try:
-            layergroup=tmp['layergroup']
-            lgnum=tmp['lgnum']
+            layergroup = tmp['layergroup']
+            lgnum = tmp['lgnum']
         except:
             print('layer group not found')
         data['space_group'][i] = "{} ({})".format(spg, spg_num)
-        #data['layer_group'][i] = "{} ({})".format(layergroup, lgnum)
+        data['layer_group'][i] = "{} ({})".format(layergroup, lgnum)
         print(name, "{} ({})".format(spg, spg_num))
 
 data.to_excel(to_file)
