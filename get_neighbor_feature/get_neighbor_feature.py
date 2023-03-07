@@ -68,7 +68,7 @@ plt.subplot(2, 1, 2)
 plt.hist(nb_bond_dist, args.sample, (1.0, args.rcut + 0.2))
 # plt.hist(height_target, args.sample, (1.0, args.rcut+0.2))
 # plt.show()
-plt.savefig('get_neighbor_feature/sample.jpg', dpi=800)
+plt.savefig('get_neighbor_feature/fig/sample.jpg', dpi=800)
 plt.close('all')
 
 # print(len(nb_set_bond_dist_tot)*13*13)
@@ -79,7 +79,7 @@ fig, ax = plt.subplots()
 ax.hist(nb_bond_dist, args.sample, (1.0, args.rcut + 0.2), color='b')
 ax.spines['right'].set_visible(False)
 ax.set_xlim(xmin=1.0, xmax=args.rcut + 0.2)
-ax.set_ylabel('Frequency', color='b')
+ax.set_ylabel('Count', color='b')
 ax.yaxis.get_major_formatter().set_powerlimits((0, 3))
 # 将坐标轴的base number设置为一位。1是指科学计数法时的位数
 
@@ -102,7 +102,7 @@ X_new = np.linspace(1.0, args.rcut + 0.2, num_points,
 Y_new = interp_func(X_new)
 
 ax2.plot(X_new, Y_new, color='red', label='dataset')
-ax2.set_ylabel('Frequency', color='r')
+ax2.set_ylabel('Count', color='r')
 ax2.set_ylim(ymin=0)
 ax2.yaxis.get_major_formatter().set_powerlimits((0, 4))
 # 将坐标轴的base number设置为一位。1是指科学计数法时的位数
@@ -120,8 +120,8 @@ ax.legend(plots, labels, loc='upper left')
 ax.set_title(r'Neighbor atom distance distribution')
 ax.set_xlabel(r'Neighbor atom distance/ $\AA$')
 
-plt.savefig('get_neighbor_feature/new_statistics.svg', dpi=800)
-plt.savefig('get_neighbor_feature/new_statistics.jpg', dpi=800)
+plt.savefig('get_neighbor_feature/fig/new_statistics.svg', dpi=800)
+plt.savefig('get_neighbor_feature/fig/new_statistics.jpg', dpi=800)
 
 # Show the figure
 plt.show()

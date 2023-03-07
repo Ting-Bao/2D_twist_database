@@ -1,5 +1,10 @@
-import csv
+'''
+From xurz
+Optimized by baot
+'''
+import pandas as pd
 import numpy as np
+import os
 # set lattice constant for rectangular lattice
 lattice_a = 3.3127999306000002
 lattice_b = 4.5033998489000000
@@ -41,19 +46,10 @@ for i in range(len(ang_list)):
     if ang_diff <= threshold_ang:
         ang_list_feasible.append(ang_list[i])
 
-# headers = ['m','n','strain angle','twist angle','EST. atom number']
-# with open('Twist_angle_feasible.csv','w') as f:
-#     f_csv = csv.writer(f)
-#     f_csv.writerow(headers)
-#     f_csv.writerow(ang_list_feasible)
+headers = ['m','n','strain angle','twist angle','EST. atom number']
+data=pd.DataFrame(columns=headers)
+for i in range(len(headers)):
+    data[headers[i]]=[item[i] for item in ang_list_feasible]
+data.to_csv('Twist_angle_feasible_new.csv')
 
-# for i in range(1, np.shape(ang_list)[0]+1):
-#     ang_diff = abs(ang_list[i][2] - 90)
-#     if ang_list[i][0] == 
-        
-#        ang_str += f'{m}    {n}    {strain_ang}    {twist_ang}'
-#        if i != len(structure_shift_perturb) - 1:
-#            ang_str += '\n'
-#
-#with open('ang_list.dat', 'w') as f:
-#    f.write(ang_str)
+

@@ -4,5 +4,10 @@
     "python.linting.flake8Args": ["--max-line-length=248","--ignore=F*"],
     "python.linting.flake8Enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.enabled": false
+    "python.linting.enabled": false,
+    "python.linting.pylintArgs": [
+            "--load-plugins",
+            "pylint_django"
+        ]
+
 }
