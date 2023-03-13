@@ -15,7 +15,7 @@ working_path = os.getcwd()
 E_Fermi_Hartree = -0.177120796613  # grep Chemical openmx.out !!!
 lowest_band = -2.05 # no use in pardiso case
 max_inter = 300
-num_band = 500
+num_band = 600
 
 # kp_path = ["15 0.000 0.000 0.000  0.000 0.500 0.000  Γ Y",
 #            "15 0.000 0.500 0.000  0.500 0.500 0.000  Y M",
@@ -68,11 +68,11 @@ for i in range(180+1):  # index of k points, change when use !!!
         # os.system(f'julia {calc_src_dir} --input_dir {working_path} --output_dir {config_file_path} --config {config_file_path}/band_config.json')
 
         # use the full multi-core processor
-        if i%64==0: 
+        if i%32==0: 
             bash_cmd += '\nwait\n'
 
 bash_cmd += '\nwait\n'
-with open('diag.sh','w',encoding='utf-8') as f:
-    f.write(header + bash_cmd)
-#os.system(header + bash_cmd)
+# with open('diag.sh','w',encoding='utf-8') as f:
+#     f.write(header + bash_cmd)
+os.system(header + bash_cmd)
 print("finished!")
