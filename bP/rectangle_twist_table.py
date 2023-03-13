@@ -14,7 +14,7 @@ m_range = range(2, 80)
 # e.g. (m,0) (0,n) for layer_1, (m,-1) (1,n) for layer 2
 
 # set threshold for strained angle
-threshold_ang = 0.6
+threshold_ang = 0.1
 
 # initialize variables
 twist_ang = 0

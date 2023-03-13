@@ -203,14 +203,22 @@ def infer_and_eval(source, target):
             cmd.append(
                 'cd {} && python mae_heat_map.py>>info_mae && sleep 10 \n'.
                 format(temp_workpath + 'mae', e3eval_path))
+            
             '''
-            infer_band_pardiso.py 
+            band_ structure and infer_band_pardiso.py 
             '''
+            # use the high symmertric line in k space !!same as that in openmx calcualtion!!
+            # Use the Feimi Energy in openmx calculation
+            
+
             '''
             band_projection 
             '''
             # tangzc didn't finish the soc part
 
+            '''
+            DOS and pDOS
+            '''
             # TODO
             #cmd.append('cd {}/predict_e3nn && mv ./predict_e3nn/hamiltonians_pred.h5 ./ && python {}\n'.format(temp_workpath,pardiso_path))
 
@@ -221,5 +229,6 @@ def infer_and_eval(source, target):
 
 
 if __name__ == '__main__':
-    #select_model(source=results_collection, target = model_set)
+    # select_model(source=results_collection, target = model_set) 
+    # don't run if the model is already refined
     infer_and_eval(source=model_set + '/e3nn_batch/', target=infer_path)

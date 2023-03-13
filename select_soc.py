@@ -23,7 +23,7 @@ socfilepath = 'data/ifsoc_data/'
 tofile = 'data/ifsoc_data/AAresult/'
 finalsocfile = 'data/finalchoice/ifsoc.json'
 
-plotfile = 'utility/plot_openmx_band.py'
+plotfile = 'utility/plot_openmx_band_SOC.py'
 comparefile = 'utility/compare_band.py'
 
 
