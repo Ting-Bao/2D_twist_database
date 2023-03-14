@@ -115,12 +115,13 @@ def infer_and_eval(source, target):
     models = [i for i in os.listdir(source) if os.path.isdir(source + i)]
     to_infer_list = []  #记录需要比较的cased，eg， 'Al2Cl2/2-1'
     cmd = []  # 记录需要在w001上执行的脚本
+    cmd_project = []  # 记录需要在w001上执行的project脚本
 
     for i in models:
         temppath = target + i
 
         # check if there corresponding openmx result, else skip
-        excludelist = ['P4-']
+        excludelist = ['P4-276f0a298324']
         if not os.path.exists(opmx_path_local +
                               '{}_2-1'.format(i)) and i not in excludelist:
             print('skip ', i)
@@ -141,10 +142,10 @@ def infer_and_eval(source, target):
                 temp_workpath = work_path + i + '/' + twist_case + '/'
                 to_infer_list.append('{}/{}'.format(i, twist_case))
 
-            cmd.append("\n echo start processing:{}".format(i + ' ' +
-                                                            twist_case))
+            cmd.append("\necho start processing:{}".format(i + ' ' +
+                                                           twist_case))
             '''
-            deeph-inference
+            1. deeph-inference
             '''
             # content 对应inference.ini中的work_dir, OLP_dir, trained_model_dir
             content = [
@@ -162,7 +163,7 @@ def infer_and_eval(source, target):
                 '\n# cd {} && deeph-inference --config inference.ini && sleep 10 \n'
                 .format(temp_workpath))
             '''
-            e3 eval.py
+            2. e3 eval.py
             '''
             content = [
                 model_path + i, temp_workpath, temp_workpath + 'predict_e3nn',
@@ -185,7 +186,7 @@ def infer_and_eval(source, target):
                 format(temp_workpath + 'predict_e3nn/', e3eval_path))
             # 多进程并行时候，-n 8 在有些case下不work，不知道为何
             '''
-            get mae
+            3. get mae
             '''
             content = [
                 temp_workpath + 'predict_e3nn/hamiltonians_pred.h5',
@@ -202,23 +203,117 @@ def infer_and_eval(source, target):
 
             cmd.append(
                 'cd {} && python mae_heat_map.py>>info_mae && sleep 10 \n'.
-                format(temp_workpath + 'mae', e3eval_path))
-            
+                format(temp_workpath + 'mae'))
             '''
-            band_ structure and infer_band_pardiso.py 
+            4. band_structure and infer_band_pardiso.py 
             '''
-            # use the high symmertric line in k space !!same as that in openmx calcualtion!!
+            # Use the high symmertric line in k space !!same as that in openmx calcualtion!!
             # Use the Feimi Energy in openmx calculation
+
+            # make dir
+            DFT_path = opmx_path_local + '../twisted_band_opmx/{}_{}/'.format(
+                i, twist_case)
+            if not os.path.exists(twistpath_local + '/band'):
+                os.mkdir(twistpath_local + '/band')
+
+            # prepare the pardiso file
+            fermi = grep_fermi_opmxout(DFT_path + 'openmx.out')
+            kpath = [
+                i.replace('\n', '",\n"')
+                for i in grep_kpath_from_opmx(DFT_path + 'openmx_in.dat')
+            ]
+            num_k = sum([int(i.split()[0]) for i in kpath]) + 1
+            kpath = '["' + "".join(kpath)[:-4] + '"]'
+            soc = grep_json_key(jsonpath=source + i + '/src/dataset_info.json',
+                                key='spinful')
+            num_band = 140 if twist_case == '2-1' else 280
+            template = 'template/analyze/infer_band_pardiso_template.py'
+            content = [fermi, kpath, soc, num_k, num_band]
+            pardiso = from_template(template=template, content=content)
+            with open(twistpath_local + '/band/' + 'infer_band_pardiso.py',
+                      'w',
+                      encoding='utf-8') as fp:
+                fp.writelines(pardiso)
+
+            # get the soft link ln -s
+            for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
+                'orbital_types.dat','rlat.dat','R_list.dat','site_positions.dat']:
+                linkfile = twistpath_local + '/band/{}'.format(file)
+                try:
+                    os.remove(os.path.abspath(linkfile))
+                except:
+                    pass
+                os.symlink('../predict_e3nn/{}'.format(file), linkfile)
+            shutil.copy('template/analyze/plot_band_scatter_each_k.py',
+                        twistpath_local + '/band/')
+
+            cmd.append(
+                'cd {} && python infer_band_pardiso.py>>info_band && python plot_band_scatter_each_k.py >> info_band&& sleep 10 \n'
+                .format(temp_workpath + 'band'))
+            '''
+            5. pband_projection 
+            '''
+            # make dir
+            DFT_path = opmx_path_local + '../twisted_band_opmx/{}_{}/'.format(
+                i, twist_case)
+            if not os.path.exists(twistpath_local + '/pband'):
+                os.mkdir(twistpath_local + '/pband')
+
+            # prepare the pardiso file
+            template = 'template/analyze/infer_pband_template.py'
+            content = [fermi, kpath, soc, num_k,
+                       num_band]  # same as the band part
+            pardiso = from_template(template=template, content=content)
+            with open(twistpath_local + '/pband/' + 'infer_pband.py',
+                      'w',
+                      encoding='utf-8') as fp:
+                fp.writelines(pardiso)
+
+            template = 'template/analyze/post_orb.sh'
+            content = [num_k]
+            temp = from_template(template=template, content=content)
+            with open(twistpath_local + '/pband/' + 'post_orb.sh',
+                      'w',
+                      encoding='utf-8') as fp:
+                fp.writelines(temp)
+
+            # get the soft link ln -s
+            for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
+                'orbital_types.dat','rlat.dat','R_list.dat','site_positions.dat']:
+                linkfile = twistpath_local + '/pband/{}'.format(file)
+                try:
+                    os.remove(os.path.abspath(linkfile))
+                except:
+                    pass
+                os.symlink('../predict_e3nn/{}'.format(file), linkfile)
+
+            cmd.append(
+                'cd {} && python infer_pband.py>>info_pband && python plot_band_scatter_each_k.py >> info_pband && bash post_orb.sh &&sleep 10 \n'
+                .format(temp_workpath + 'pband'))
             
+            '''
+            6. pDOS
+            '''
+            # make dir
+            DFT_path = opmx_path_local + '../twisted_band_opmx/{}_{}/'.format(
+                i, twist_case)
+            if not os.path.exists(twistpath_local + '/pdos'):
+                os.mkdir(twistpath_local + '/pdos')
 
-            '''
-            band_projection 
-            '''
-            # tangzc didn't finish the soc part
-
-            '''
-            DOS and pDOS
-            '''
+            # get the soft link ln -s
+            for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
+                'orbital_types.dat','rlat.dat','R_list.dat','site_positions.dat']:
+                linkfile = twistpath_local + '/pdos/{}'.format(file)
+                try:
+                    os.remove(os.path.abspath(linkfile))
+                except:
+                    pass
+                os.symlink('../predict_e3nn/{}'.format(file), linkfile)
+            
+            # /home/lihe/apps/julia-1.6.6/bin/julia /home/tangzc/pband/sparse_calc_pardis_pdos.jl -i .  -o ./pdos --config dos_config.json
+            # /home/lihe/anaconda3/envs/3_9/bin/python3 /home/tangzc/pband/post_pdos_orb_type.py -i1 . -i2 pdos -o pdos
+            # /home/lihe/anaconda3/envs/3_9/bin/python3 /home/tangzc/pband/smearing_pdos_orb_type.py -i1 . -i2 pdos -o . --config dos_config.json
+            # /home/lihe/anaconda3/envs/3_9/bin/python3 /home/tangzc/pband/plot_pdos_orb_type.py
             # TODO
             #cmd.append('cd {}/predict_e3nn && mv ./predict_e3nn/hamiltonians_pred.h5 ./ && python {}\n'.format(temp_workpath,pardiso_path))
 
@@ -229,6 +324,6 @@ def infer_and_eval(source, target):
 
 
 if __name__ == '__main__':
-    # select_model(source=results_collection, target = model_set) 
+    # select_model(source=results_collection, target = model_set)
     # don't run if the model is already refined
-    infer_and_eval(source=model_set + '/e3nn_batch/', target=infer_path)
+    infer_and_eval(source=model_set + 'e3nn_batch/', target=infer_path)

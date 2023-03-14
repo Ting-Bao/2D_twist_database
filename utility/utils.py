@@ -214,13 +214,23 @@ def grep_kpath_from_opmx(opmxfile, change_gamma=True):
     target = []
     flag = False
     for line in lines:
-        if line.find('<Band.kpath'):
+        if '<Band.kpath' in line:
             flag = True
-        if line.find('<Band.kpath'):
+            continue
+        if 'Band.kpath>' in line:
             flag = False
             break
         if flag == True:
             target.append(line)
     if change_gamma == True:
-        target = [i.replace('\Gamma', 'Γ')]
+        target = [i.replace('\\Gamma', 'Γ') for i in target]
     return target
+
+
+def grep_fermi_opmxout(file):
+    with open(file, 'r', encoding='utf-8') as fp:
+        lines = fp.readlines()
+    for line in lines:
+        if 'Chemical' in line:
+            return line.split()[-1]
+    # eg, Chemical potential (Hartree)      -0.176348327809
