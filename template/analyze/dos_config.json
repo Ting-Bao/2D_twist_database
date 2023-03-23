@@ -1,0 +1,19 @@
+{
+    "calc_job": "dos",
+    "fermi_level": -4.404989276084306,
+    "kmesh": [21, 21, 1],
+    "max_iter": 300,
+    "num_band": 80,
+    "emin": -5,
+    "emax": 5,
+    "edense": 1000,
+    "smearing": 0.05,
+    "explanations_1": "calc_job -- always write `dos`; fermi_level -- fermi energy of the system/eV",
+    "explanations_2": "kmesh -- density of kpoints; max_iter -- calc parameter for pardiso diagonalization",
+    "explanations_3": "num_bands -- number of bands for sparse diagonalization",
+    "explanations_4": "emin/emax -- min/max energy for dos calculation (eV, relative to fermi_level)",
+    "explanations_5": "edense -- number of energy points for dos calculation",
+    "explanations_6": "smearing -- Gaussian smearing for dos calculation/eV",
+    "explanations_7": "BE AWARE OF CONVERGENCE RELATED TO KMESH AND SMEARING"
+ }
+ 

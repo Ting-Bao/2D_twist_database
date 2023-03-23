@@ -48,7 +48,7 @@ if __name__=='__main__':
     data = pd.read_csv('Twist_angle_feasible_new.csv')
     oklist=[]
     for i in range(len(data)):
-        if data['EST. atom number'][i] < 5000:
+        if data['EST. atom number'][i] < 12000:
             oklist.append((data['m'][i],data['n'][i]))
     for m,n in oklist:
         gen_twist(m=m,n=n)

@@ -12,6 +12,7 @@ from utility.utils import *
 import os
 import shutil
 import json
+from pymatgen.core.structure import Structure
 
 results_collection = '/home/tingbao/Desktop/TS216NAS/Public/baot/results_collection/'
 model_set = '/home/tingbao/Desktop/TS216NAS/Public/baot/modelset/'
@@ -116,7 +117,7 @@ def infer_and_eval(source, target):
     to_infer_list = []  #记录需要比较的cased，eg， 'Al2Cl2/2-1'
     cmd = []  # 记录需要在w001上执行的脚本
     cmd_project = []  # 记录需要在w001上执行的project脚本
-
+    count = 0
     for i in models:
         temppath = target + i
 
@@ -160,7 +161,7 @@ def infer_and_eval(source, target):
                 f.writelines(jsoninfo)
             #print(i)
             cmd.append(
-                '\n# cd {} && deeph-inference --config inference.ini && sleep 10 \n'
+                '\n# cd {} && deeph-inference --config inference.ini && sleep 3 \n'
                 .format(temp_workpath))
             '''
             2. e3 eval.py
@@ -182,7 +183,7 @@ def infer_and_eval(source, target):
                 opmx_path + i + '_' + twist_case + '/*',
                 temp_workpath + 'predict_e3nn/'))
             cmd.append(
-                'cd {} && python {} eval.ini -n 8 >> eval_log && sleep 10 \n'.
+                'cd {} && python {} eval.ini -n 8 >> eval_log && sleep 3 \n'.
                 format(temp_workpath + 'predict_e3nn/', e3eval_path))
             # 多进程并行时候，-n 8 在有些case下不work，不知道为何
             '''
@@ -202,7 +203,7 @@ def infer_and_eval(source, target):
                 f.writelines(jsoninfo)
 
             cmd.append(
-                'cd {} && python mae_heat_map.py>>info_mae && sleep 10 \n'.
+                'cd {} && python mae_heat_map.py>>info_mae && sleep 3 \n'.
                 format(temp_workpath + 'mae'))
             '''
             4. band_structure and infer_band_pardiso.py 
@@ -217,7 +218,7 @@ def infer_and_eval(source, target):
                 os.mkdir(twistpath_local + '/band')
 
             # prepare the pardiso file
-            fermi = grep_fermi_opmxout(DFT_path + 'openmx.out')
+            fermi = grep_fermi_opmxout(DFT_path + 'openmx.out')  # Hartree
             kpath = [
                 i.replace('\n', '",\n"')
                 for i in grep_kpath_from_opmx(DFT_path + 'openmx_in.dat')
@@ -248,10 +249,10 @@ def infer_and_eval(source, target):
                         twistpath_local + '/band/')
 
             cmd.append(
-                'cd {} && python infer_band_pardiso.py>>info_band && python plot_band_scatter_each_k.py >> info_band&& sleep 10 \n'
+                'cd {} && python infer_band_pardiso.py>>info_band && python plot_band_scatter_each_k.py >> info_band&& sleep 3 \n'
                 .format(temp_workpath + 'band'))
             '''
-            5. pband_projection 
+            5. pband, band_projection 
             '''
             # make dir
             DFT_path = opmx_path_local + '../twisted_band_opmx/{}_{}/'.format(
@@ -288,17 +289,16 @@ def infer_and_eval(source, target):
                 os.symlink('../predict_e3nn/{}'.format(file), linkfile)
 
             cmd.append(
-                'cd {} && python infer_pband.py>>info_pband && python plot_band_scatter_each_k.py >> info_pband && bash post_orb.sh &&sleep 10 \n'
+                'cd {} && python infer_pband.py>>info_pband && bash post_orb.sh &&sleep 3 \n'
                 .format(temp_workpath + 'pband'))
-            
             '''
-            6. pDOS
+            6. pdos
             '''
             # make dir
-            DFT_path = opmx_path_local + '../twisted_band_opmx/{}_{}/'.format(
-                i, twist_case)
             if not os.path.exists(twistpath_local + '/pdos'):
                 os.mkdir(twistpath_local + '/pdos')
+            if not os.path.exists(twistpath_local + '/pdos/pdos'):
+                os.mkdir(twistpath_local + '/pdos/pdos')
 
             # get the soft link ln -s
             for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
@@ -309,18 +309,54 @@ def infer_and_eval(source, target):
                 except:
                     pass
                 os.symlink('../predict_e3nn/{}'.format(file), linkfile)
-            
-            # /home/lihe/apps/julia-1.6.6/bin/julia /home/tangzc/pband/sparse_calc_pardis_pdos.jl -i .  -o ./pdos --config dos_config.json
-            # /home/lihe/anaconda3/envs/3_9/bin/python3 /home/tangzc/pband/post_pdos_orb_type.py -i1 . -i2 pdos -o pdos
-            # /home/lihe/anaconda3/envs/3_9/bin/python3 /home/tangzc/pband/smearing_pdos_orb_type.py -i1 . -i2 pdos -o . --config dos_config.json
-            # /home/lihe/anaconda3/envs/3_9/bin/python3 /home/tangzc/pband/plot_pdos_orb_type.py
-            # TODO
-            #cmd.append('cd {}/predict_e3nn && mv ./predict_e3nn/hamiltonians_pred.h5 ./ && python {}\n'.format(temp_workpath,pardiso_path))
+            # info.json
+            linkfile = twistpath_local + '/pdos/info.json'
+            try:
+                    os.remove(os.path.abspath(linkfile))
+            except:
+                pass
+                os.symlink('../pband/info.json', linkfile)
 
-    with open(infer_path + 'runall.sh', 'w', encoding='utf-8') as f:
-        f.writelines(cmd)
+            # decide kmesh
+            str_raw = Structure.from_file(DFT_path + 'POSCAR')
+            kmesha = int(120 // str_raw.lattice.a + 1)
+            kmeshb = int(120 // str_raw.lattice.b + 1)
+            # prepare the dos_config.json
+            template = 'template/analyze/dos_config_template.json'
+            content = [float(fermi) * 27.21138602, kmesha, kmeshb,
+                       num_band]  # same as the band part
+            temp = from_template(template=template, content=content)
+            with open(twistpath_local + '/pdos/' + 'dos_config.json',
+                      'w',
+                      encoding='utf-8') as fp:
+                fp.writelines(temp)
+
+            f1 = "julia16 /home/baot/bin/sparse_calc_pardis_pdos.jl -i .  -o ./pdos --config dos_config.json"
+            f2 = "/home/lihe/anaconda3/envs/3_9/bin/python3 /home/baot/bin/post_pdos_orb_type.py -i1 . -i2 pdos -o pdos"
+            f3 = "/home/lihe/anaconda3/envs/3_9/bin/python3 /home/baot/bin/smearing_pdos_orb_type.py -i1 . -i2 pdos -o . --config dos_config.json"
+            f4 = "/home/lihe/anaconda3/envs/3_9/bin/python3 /home/baot/bin/plot_pdos_orb_type.py"
+            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f1 + ' \n')
+            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f2 + ' \n')
+            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f3 + ' \n')
+            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f4 + ' \n')
+        
+            count += 1
+            head=fr'''#!/bin/bash
+#PBS -N eval
+#PBS -l nodes=1:ppn=64
+#PBS -l walltime=960:00:00
+#PBS -q cmtmd
+
+source ~/.bashrc
+#conda activate 39
+
+'''
+            if count%15 == 0:
+                with open(infer_path + 'runall{}.sh'.format(count//15), 'w', encoding='utf-8') as f:
+                    f.writelines([head]+cmd)
+                cmd = []
     print(" Infer and eval file prepared for {} twisted material(s)! ".format(
-        len(to_infer_list)))
+        len(to_infer_list)))    
 
 
 if __name__ == '__main__':
