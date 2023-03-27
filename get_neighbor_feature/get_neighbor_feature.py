@@ -157,7 +157,8 @@ def plotfig(parser, data, name):
 
     # 手动设置legend
     plots = [Line2D([0], [0], color='grey')]+[Line2D([0], [0], color=i) for i in colorlist]
-    labels = ['dataset'] + ['{}'.format(item) for item in twist]
+    # labels = ['dataset'] + ['{}'.format(item) for item in twist]
+    labels = ['dataset'] + [r'10.87$^\circ$'] + [r'13.17$^\circ$'] + [r'1.08$^\circ$']
     ax.legend(plots, labels, loc='lower right')
 
     # Set the title and axis labels
