@@ -35,7 +35,7 @@ def select_model(source, target):
     find human-collect models and put into a uniform format
     '''
     models = [i for i in os.listdir(source) if os.path.isdir(source + i)]
-    #print(len(model))
+    # print(len(model))
 
     # find materials with mannual adjust json file.
     #   else to auto add the json file
@@ -56,7 +56,7 @@ def select_model(source, target):
         # get properties
         material_name = i.split('-')[0]
         C2DB_id = i.split('-')[1]
-        try:  #in case no all_data.json available
+        try:  # in case no all_data.json available
             ICSD_id = if_ICSD(json_alldata + i + '.all_data.json',
                               returnid=True)
         except:
@@ -69,7 +69,7 @@ def select_model(source, target):
 
         if len(jsonpath) == 0:  # no manual json
             temppath = model_set + 'e3nn_batch/' + i
-            #shutil.copytree(folder_path,temppath)
+            # shutil.copytree(folder_path,temppath)
             # 上一行做不到覆盖拷贝
             if not os.path.exists(temppath):
                 os.mkdir(temppath)
@@ -105,7 +105,7 @@ def select_model(source, target):
             add_key_to_json(jsonpath=temppath + '/train_set.json',
                             content={"e3nn_ver": e3nn_ver})
 
-        #print(folder_path)
+        # print(folder_path)
     print("{} Models found and selected!", format(len(models)))
 
 
@@ -114,7 +114,7 @@ def infer_and_eval(source, target):
     get the prepare file to run on the w001 server
     '''
     models = [i for i in os.listdir(source) if os.path.isdir(source + i)]
-    to_infer_list = []  #记录需要比较的cased，eg， 'Al2Cl2/2-1'
+    to_infer_list = []  # 记录需要比较的cased，eg， 'Al2Cl2/2-1'
     cmd = []  # 记录需要在w001上执行的脚本
     cmd_project = []  # 记录需要在w001上执行的project脚本
     count = 0
@@ -143,8 +143,7 @@ def infer_and_eval(source, target):
                 temp_workpath = work_path + i + '/' + twist_case + '/'
                 to_infer_list.append('{}/{}'.format(i, twist_case))
 
-            cmd.append("\necho start processing:{}".format(i + ' ' +
-                                                           twist_case))
+            cmd.append("\necho start processing:{}".format(i + ' ' + twist_case))
             '''
             1. deeph-inference
             '''
@@ -159,7 +158,7 @@ def infer_and_eval(source, target):
                       'w',
                       encoding='utf-8') as f:
                 f.writelines(jsoninfo)
-            #print(i)
+            # print(i)
             cmd.append(
                 '\n# cd {} && deeph-inference --config inference.ini && sleep 3 \n'
                 .format(temp_workpath))
@@ -237,8 +236,8 @@ def infer_and_eval(source, target):
                 fp.writelines(pardiso)
 
             # get the soft link ln -s
-            for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
-                'orbital_types.dat','rlat.dat','R_list.dat','site_positions.dat']:
+            for file in ['hamiltonians_pred.h5', 'overlaps.h5', 'element.dat', 'lat.dat',
+                         'orbital_types.dat', 'rlat.dat', 'R_list.dat', 'site_positions.dat']:
                 linkfile = twistpath_local + '/band/{}'.format(file)
                 try:
                     os.remove(os.path.abspath(linkfile))
@@ -279,8 +278,8 @@ def infer_and_eval(source, target):
                 fp.writelines(temp)
 
             # get the soft link ln -s
-            for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
-                'orbital_types.dat','rlat.dat','R_list.dat','site_positions.dat']:
+            for file in ['hamiltonians_pred.h5', 'overlaps.h5', 'element.dat', 'lat.dat',
+                         'orbital_types.dat', 'rlat.dat', 'R_list.dat', 'site_positions.dat']:
                 linkfile = twistpath_local + '/pband/{}'.format(file)
                 try:
                     os.remove(os.path.abspath(linkfile))
@@ -301,8 +300,8 @@ def infer_and_eval(source, target):
                 os.mkdir(twistpath_local + '/pdos/pdos')
 
             # get the soft link ln -s
-            for file in ['hamiltonians_pred.h5','overlaps.h5','element.dat','lat.dat',\
-                'orbital_types.dat','rlat.dat','R_list.dat','site_positions.dat']:
+            for file in ['hamiltonians_pred.h5', 'overlaps.h5', 'element.dat', 'lat.dat',
+                         'orbital_types.dat', 'rlat.dat', 'R_list.dat', 'site_positions.dat']:
                 linkfile = twistpath_local + '/pdos/{}'.format(file)
                 try:
                     os.remove(os.path.abspath(linkfile))
@@ -312,7 +311,7 @@ def infer_and_eval(source, target):
             # info.json
             linkfile = twistpath_local + '/pdos/info.json'
             try:
-                    os.remove(os.path.abspath(linkfile))
+                os.remove(os.path.abspath(linkfile))
             except:
                 pass
                 os.symlink('../pband/info.json', linkfile)
@@ -339,24 +338,22 @@ def infer_and_eval(source, target):
             cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f2 + ' \n')
             cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f3 + ' \n')
             cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f4 + ' \n')
-        
+
             count += 1
-            head=fr'''#!/bin/bash
+            head = fr'''#!/bin/bash
 #PBS -N eval
 #PBS -l nodes=1:ppn=64
 #PBS -l walltime=960:00:00
 #PBS -q cmtmd
-
 source ~/.bashrc
 #conda activate 39
-
 '''
-            if count%15 == 0:
+            if count % 15 == 0:
                 with open(infer_path + 'runall{}.sh'.format(count//15), 'w', encoding='utf-8') as f:
                     f.writelines([head]+cmd)
                 cmd = []
     print(" Infer and eval file prepared for {} twisted material(s)! ".format(
-        len(to_infer_list)))    
+        len(to_infer_list)))
 
 
 if __name__ == '__main__':

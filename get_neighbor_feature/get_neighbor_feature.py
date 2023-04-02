@@ -12,6 +12,9 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from functools import partial
 
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+
 def get_parser():
     parser = ArgumentParser(description='')
     parser.add_argument(
@@ -40,13 +43,13 @@ def get_data(parser,path):
     data = {}
     tw_case = os.listdir(path)
     for i in tw_case:
-        if not 'POSCAR' in i:
+        if not 'POSCAR_' in i:
             tw_case.remove(i)
     data['config'] = get_dataset(parser, path=path + '/config')
     for case in tw_case:
         data[case[7:]] = get_poscar(parser, path=path + '/' + case)
     with open(path+'/nb.json','w',encoding='utf-8') as fp:
-        json.dump(data,fp,indent=2)
+        json.dump(data,fp)
     return data
 
 def get_poscar(parser, path):
@@ -91,12 +94,14 @@ def plotfig(parser, data, name):
     colorlist=['red','green','blue']
 
     # new figure by baot
-    fig, ax = plt.subplots(figsize=(9,5))
+    fig, ax = plt.subplots(figsize=(10,4))
     #ax2 = ax.twinx()
     ax2 = ax
     # ax2.spines['right'].set_visible(False)
     twist=list(data.keys())
     twist.remove('config')
+    if '' in twist:
+        twist.remove('')
     twist = sorted(twist,key= lambda x: int(x.split('-')[0]),reverse=False)
     for i in range(len(twist)):
         item = twist[i]
@@ -112,8 +117,8 @@ def plotfig(parser, data, name):
         width = (args.rcut + 0.2 - 1.0) / args.sample
         X = np.linspace(1.0, args.rcut + 0.2, args.sample + 1, endpoint=True)
         Y = np.append(set_hist, 0)
-        interp_func = interp1d(X, Y, kind='quadratic')
-        num_points = 3 * args.sample
+        interp_func = interp1d(X, Y, kind='slinear')
+        num_points = 2 * args.sample
         X_new = np.linspace(1.0, args.rcut + 0.2, num_points,
                             endpoint=False) + width / (2 * 3)
         Y_new = interp_func(X_new)
@@ -133,8 +138,8 @@ def plotfig(parser, data, name):
     width = (args.rcut + 0.2 - 1.0) / args.sample
     X = np.linspace(1.0, args.rcut + 0.2, args.sample + 1, endpoint=True)
     Y = np.append(set_hist, 0)
-    interp_func = interp1d(X, Y, kind='quadratic')
-    num_points = 3 * args.sample
+    interp_func = interp1d(X, Y, kind='slinear')
+    num_points = 2 * args.sample
     X_new = np.linspace(1.0, args.rcut + 0.2, num_points,
                         endpoint=False) + width / (2 * 3)
     Y_new = interp_func(X_new)
@@ -148,11 +153,13 @@ def plotfig(parser, data, name):
     def mjrFormatter(x, pos):
         return "$10^{{{0}}}$".format(int(x))
     ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
-    ax.set_ylabel('Count', color='black')
+    # ax.set_ylabel('Count', color='black',fontsize=12)
     ax.set_xlim(xmin=1, xmax=10)
     ax.set_ylim(ymin=0)
     # ax.yaxis.get_major_formatter().set_powerlimits((0, 4))
-
+    # ax.set_xticks(ticks=list(range(1,10,1)),fontsize=12)
+    ax.xaxis.set_tick_params(labelsize=12)
+    ax.yaxis.set_tick_params(labelsize=12)
 
 
     # 手动设置legend
@@ -161,22 +168,41 @@ def plotfig(parser, data, name):
     labels = ['dataset'] + [r'10.87$^\circ$'] + [r'13.17$^\circ$'] + [r'1.08$^\circ$']
     ax.legend(plots, labels, loc='lower right')
 
-    # Set the title and axis labels
-    ax.set_title(name.split('-')[0])
-    ax.set_xlabel(r'Neighboring atom-atom distance ($\AA$)')
+    # P4
+    labels = ['dataset',r'10.87$^\circ$ (7-4, 228 atoms)',r'2.20$^\circ$ (35-19, 5324 atoms)',r'1.45$^\circ$ (53-28, 11876 atoms)']
+    
+    # C2
+    labels = ['dataset',r'21.79$^\circ$ (2-1, 28 atoms)',r'1.61$^\circ$ (21-20, 5044 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
+    
+    # SnS2
+    # labels = ['dataset',r'36.87$^\circ$ (2-1, 30 atoms)',r'2.79$^\circ$ (21-20, 5046 atoms)',r'1.88$^\circ$ (31-30, 11166 atoms)']
+    
+    # Bi2I6
+    # labels = ['dataset',r'21.79$^\circ$ (2-1, 112 atoms)',r'1.61$^\circ$ (21-20, 20176 atoms)',r'1.08$^\circ$ (31-30, 44656 atoms)']
+    
+    # PtSe2
+    labels = ['dataset',r'21.79$^\circ$ (2-1, 42 atoms)',r'1.61$^\circ$ (21-20, 16746 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
 
-    plt.savefig('get_neighbor_feature/fig/new_statistics.svg')
-    plt.savefig('get_neighbor_feature/fig/new_statistics.jpg', dpi=800)
-    plt.show()
+    # TaS2
+    # labels = ['dataset',r'21.79$^\circ$ (2-1, 42 atoms)',r'1.61$^\circ$ (21-20, 16746 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
+
+    ax.legend(plots, labels, loc='lower right',fontsize=12)
+    # Set the title and axis labels
+    # ax.set_title(name.split('-')[0])
+    # ax.set_xlabel(r'Neighboring atom-atom distance ($\AA$)')
+    plt.tight_layout()
+    plt.savefig('get_neighbor_feature/fig/{}.svg'.format(name))
+    plt.savefig('get_neighbor_feature/fig/{}.jpg'.format(name), dpi=1200)
+    # plt.show()
 
 
 def main():
     parser = get_parser()
     materials = [
         'C2-a6735a4a3797', 'P4-276f0a298324', 'SnS2-08a9307b286e',
-        'Bi2I6-433fccc74b5d', 'MoS2-b3b4685fb6e1', 'PtSe2-d000f0288397'
+        'Bi2I6-433fccc74b5d', 'TaS2-9415d3a10af8', 'PtSe2-d000f0288397'
     ]
-    for material in materials[1:2]:
+    for material in materials[:1]:
         path = 'get_neighbor_feature/target_POSCAR/' + material
         data = get_data(parser,path)
         

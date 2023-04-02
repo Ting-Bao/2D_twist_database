@@ -38,7 +38,7 @@ def gen_twist(m,n):
     twist_demo.twist_layers(start_z=0.3194191294526076, super_a3_z=20)
 
     # Write results to the file
-    twist_demo.write_res_to_poscar(filename='POSCAR_{}-{}.vasp'.format(m,n))
+    twist_demo.write_res_to_poscar(filename='POSCARs/POSCAR_{}-{}.vasp'.format(m,n))
 
     # (Optional) Calculate the twisted angles of each layer in degree 
     twisted_angles = twist_demo.calc_layers_twist_angles()
@@ -48,7 +48,7 @@ if __name__=='__main__':
     data = pd.read_csv('Twist_angle_feasible_new.csv')
     oklist=[]
     for i in range(len(data)):
-        if data['EST. atom number'][i] < 12000:
+        if data['EST. atom number'][i] < 30000:
             oklist.append((data['m'][i],data['n'][i]))
     for m,n in oklist:
         gen_twist(m=m,n=n)
