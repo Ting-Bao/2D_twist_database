@@ -223,55 +223,6 @@ class BandData():
     self.band_data["kpoints_coords"] = kpoints_coords
     return
   
-  def refined_reconnected_fermi_energy(self):
-    '''by baot, tested on black P(P4) only
-    used for band_reconnected.json from connect_interpolate.py
-    The band data here is about the fermi_energy=0.0 already, 
-    here we move the fermi level to  the middle of the gap
-    '''
-    
-    band_num = self.band_data["band_num"]
-    kpoints_num = self.band_data["kpoints_num"]
-    spin_num = self.band_data["spin_num"]
-    lumo_energy = self.band_data["lumo_energy"]
-    homo_energy = self.band_data["homo_energy"]
-    self.band_data['refined_fermi_energy'] = (lumo_energy + homo_energy) / 2
-    
-    # baot: the energy shift required to center the fermi energy for reconnected band data
-    energy_shift = self.band_data["fermi_energy"] - self.band_data['refined_fermi_energy']
-    self.band_data["spin_up_energys"] += energy_shift
-    if spin_num == 2:
-      self.band_data["spin_dn_energys"] += energy_shift
-
-    # find the LUMO and HOMO
-    energys = self.band_data["spin_up_energys"]#band_data["sorted_energys"]
-    homo_band_index = 0
-    homo_kpt_index = 0
-    lumo_band_index = band_num-1
-    lumo_kpt_index = 0
-    lumo_energy = 1e5
-    homo_energy = -1e5
-    for band_i in range(band_num):
-      for kpoint_i in range(kpoints_num):
-        curr_energy = energys[band_i, kpoint_i]
-        if (curr_energy >= 0) and (curr_energy < lumo_energy):
-          lumo_energy = curr_energy
-          lumo_band_index = band_i
-          lumo_kpt_index = kpoint_i
-        if (curr_energy < 0) and (curr_energy > homo_energy):
-          homo_energy = curr_energy
-          homo_band_index = band_i
-          homo_kpt_index = kpoint_i
- 
-    # Record the data
-    self.band_data["lumo_energy"] = lumo_energy
-    self.band_data["homo_energy"] = homo_energy
-    self.band_data["lumo_band_index"] = lumo_band_index
-    self.band_data["lumo_kpt_index"] = lumo_kpt_index
-    self.band_data["homo_band_index"] = homo_band_index
-    self.band_data["homo_kpt_index"] = homo_kpt_index
-    return
-  
   def __refine_fermi_energy(self):
     '''Refine the fermi energy and the center of HOMO and LUMO'''
     fermi_energy = self.band_data["fermi_energy"]
@@ -383,6 +334,90 @@ class BandData():
     self.__prepare_plot_kpt_symbol()
     return
 
+  def refined_reconnected_fermi_energy(self):
+    '''by baot, tested on black P(P4) only
+    used for band_reconnected.json from connect_interpolate.py
+    The band data here is about the fermi_energy=0.0 already, 
+    here we move the fermi level to  the middle of the gap
+    '''
+    
+    band_num = self.band_data["band_num"]
+    kpoints_num = self.band_data["kpoints_num"]
+    spin_num = self.band_data["spin_num"]
+    lumo_energy = self.band_data["lumo_energy"]
+    homo_energy = self.band_data["homo_energy"]
+    self.band_data['refined_fermi_energy'] = (lumo_energy + homo_energy) / 2
+    
+    # baot: the energy shift required to center the fermi energy for reconnected band data
+    energy_shift = self.band_data["fermi_energy"] - self.band_data['refined_fermi_energy']
+    self.band_data["spin_up_energys"] += energy_shift
+    if spin_num == 2:
+      self.band_data["spin_dn_energys"] += energy_shift
+
+    # find the LUMO and HOMO
+    energys = self.band_data["spin_up_energys"]#band_data["sorted_energys"]
+    homo_band_index = 0
+    homo_kpt_index = 0
+    lumo_band_index = band_num-1
+    lumo_kpt_index = 0
+    lumo_energy = 1e5
+    homo_energy = -1e5
+    for band_i in range(band_num):
+      for kpoint_i in range(kpoints_num):
+        curr_energy = energys[band_i, kpoint_i]
+        if (curr_energy >= 0) and (curr_energy < lumo_energy):
+          lumo_energy = curr_energy
+          lumo_band_index = band_i
+          lumo_kpt_index = kpoint_i
+        if (curr_energy < 0) and (curr_energy > homo_energy):
+          homo_energy = curr_energy
+          homo_band_index = band_i
+          homo_kpt_index = kpoint_i
+ 
+    # Record the data
+    self.band_data["lumo_energy"] = lumo_energy
+    self.band_data["homo_energy"] = homo_energy
+    self.band_data["lumo_band_index"] = lumo_band_index
+    self.band_data["lumo_kpt_index"] = lumo_kpt_index
+    self.band_data["homo_band_index"] = homo_band_index
+    self.band_data["homo_kpt_index"] = homo_kpt_index
+    return
+  
+  def get_reconnected_bandwidth(self,band_index=0, gap_tol = 0.005):
+    '''by baot,
+    used for band_reconnected.json from connect_interpolate.py
+    count all the bandwidth, work for spin_num = 1 only,
+    for system with clean dirac cone like graphene, the gap tol is important to identify whether gapped
+    '''
+    band_num = self.band_data["band_num"]
+    kpoints_num = self.band_data["kpoints_num"]
+    energys = self.band_data["spin_up_energys"]#band_data["sorted_energys"]
+    gapped = True
+    bandwidth_info={}
+    # has ''
+    for band_i in range(band_num):
+      band_energy = energys[band_i, :]
+      temp_dict={}
+      temp_dict['max']=max(band_energy)
+      temp_dict['min']=min(band_energy)
+      bandwidth_info[band_i]=temp_dict
+      if temp_dict['max']>0 and temp_dict['min']<0:
+        gapped = False
+        continue
+      '''
+      # TODO
+      elif temp_dict['max']<0 and temp_dict['max']> 0-gap_tol:
+        # check 3 neighbour bands to find dirac cone type system
+      '''
+
+      
+    
+    self.band_data['gapped']= gapped
+    self.band_data['bandwidth_info']=bandwidth_info
+    return
+    
+
+
 
 def get_command_line_input():
   '''Read in the command line parameters'''
@@ -391,10 +426,10 @@ def get_command_line_input():
                       default='openmx', type=str, choices=['openmx', 'vasp'],
                       help='Type of the band calculation.')
   parser.add_argument('-d', '--ymin', dest='min_plot_energy', 
-                      default=-0.2, type=float,
+                      default=-3, type=float,
                       help='Minimal plot energy windows.')
   parser.add_argument('-u', '--ymax', dest='max_plot_energy', 
-                      default=0.2, type=float,
+                      default=3, type=float,
                       help='Maximal plot energy windows.')
   parser.add_argument('-f', '--format', dest='plot_format', 
                       default='png', type=str, choices=['png', 'eps', 'pdf'],
@@ -504,8 +539,9 @@ def band_plot(band_data_obj, plot_args,savepath):
   # Save the figure
   plot_filename = "%s.%s" %(file_tag, plot_format)
   plt.tight_layout()
-  plt.savefig(savepath+'/'+plot_filename, format=plot_format, dpi=plot_dpi, transparent=True)
-  plt.savefig(savepath+'/band.svg', transparent=True)
+  plt.savefig(savepath+'/band_reconnected.png', format=plot_format, dpi=plot_dpi, transparent=True)
+  plt.savefig(savepath+'/band_reconnected.svg', transparent=True)
+  plt.close()
   return 
 
 
@@ -628,14 +664,15 @@ def band_plot_brokeny(band_data_obj, plot_args, cut_energy, highlight_num=1,save
 
   # Save the figure
   plt.tight_layout()
-  plt.savefig(savepath+'/band_brokeny.png', format=plot_format, dpi=plot_dpi, transparent=True)
-  plt.savefig(savepath+'/band_brokeny.svg', transparent=True)
+  plt.savefig(savepath+'/band_reconnected_brokeny.png', format=plot_format, dpi=plot_dpi, transparent=True)
+  plt.savefig(savepath+'/band_reconnected_brokeny.svg', transparent=True)
   return 
 
 
-def band(savepath):
+def load_process_band(readpath,savepath,plot=True):
   '''
   band functions
+  load and process data from reconnected json
   add path argument for file input and output
   '''
   from_json = True
@@ -646,7 +683,7 @@ def band(savepath):
     band_data_obj.get_band_data()
     band_save_to_json(band_data_obj.band_data, plot_args["file_tag"])
   else:
-    with open(path+'/band_reconnect.json', 'r') as f:
+    with open(readpath+'/band_reconnect.json', 'r') as f:
       data_new = json.load(f)
     for key, val in data_new.items():
       if type(val) is list:
@@ -657,10 +694,11 @@ def band(savepath):
     band_data_obj.refined_reconnected_fermi_energy()
 
   # ==
-  if not plot_args["no_plot"]:
+  if not plot_args["no_plot"] and plot:
     band_plot(band_data_obj, plot_args,savepath=savepath)
     # band_plot_P4(band_data_obj, plot_args, cut_energy=[-0.09,0.09], highlight_num= 2 )
 
+  return band_data_obj
 #+----------------+
 #|  Main Process  |
 #+----------------+

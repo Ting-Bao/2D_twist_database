@@ -4,7 +4,7 @@ import numpy as np
 import json
 from scipy import interpolate
 
-def connect_band(inputpath, outputpath, tol=0.1, spline_interpolate=True, fine_grid_size=200):
+def connect_band(inputpath, outputpath, tol=0.1, spline_interpolate=False, fine_grid_size=200):
     with open(inputpath+'/band.json', 'r') as f:
         data = json.load(f)
 
