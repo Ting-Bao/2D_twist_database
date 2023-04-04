@@ -4,11 +4,9 @@
 # this code is to reconect and calculate and do statics on band width under VBM
 import json
 import os
-from utility.connect_interpolate_func import connect_band
-from utility.refineplot_reconnected_band import *
 
 datapath = 'data/infer_calculation/'
-
+remote_path = 'xurz@w001:/home/xurz/temp_baot/twisted_band_opmx/data/twisted_band_opmx/'
 
 
 def main():
@@ -21,14 +19,9 @@ def main():
         for tw in twlist:
             path = os.path.join(datapath, mat, tw,'band')
             pathlist.append(path)
-    
-    for path in ['data/infer_calculation/Bi2Te3-61e21cf8e36d/2-1/band/']: #pathlist:#
-        connect_band(inputpath = path, outputpath = path, spline_interpolate=False) 
-        # write band_reconnected.json, the fermi energy need further refinement (implemented above)
-        band_obj = load_process_band(readpath=path, savepath=path)
-    print('finished!')
-        
-    
+            dft_path = os.path.join(datapath, mat, tw,'dft_band')
+            os.makedirs(dft_path, exist_ok = True)
+            os.system('scp {}{}_{}/openmx.Band {}/'.format(remote_path,mat,tw,dft_path))
 
 if __name__ == '__main__':
     main()

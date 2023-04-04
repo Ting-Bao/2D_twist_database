@@ -334,6 +334,16 @@ class BandData():
     self.__prepare_plot_kpt_symbol()
     return
 
+class RcBandData():
+  '''
+  a class for reconnected band data processing
+  '''
+  def __init__(self, data_type):
+    self.data_type = data_type
+    self.band_data = {}
+    self.dft_data = {}
+    return
+
   def refined_reconnected_fermi_energy(self):
     '''by baot, tested on black P(P4) only
     used for band_reconnected.json from connect_interpolate.py
@@ -383,7 +393,7 @@ class BandData():
     self.band_data["homo_kpt_index"] = homo_kpt_index
     return
   
-  def get_reconnected_bandwidth(self,band_index=0, gap_tol = 0.005):
+  def get_reconnected_bandwidth(self,band_index=0, gap_tol = 0.005,flat_tol=0.03):
     '''by baot,
     used for band_reconnected.json from connect_interpolate.py
     count all the bandwidth, work for spin_num = 1 only,
@@ -394,30 +404,57 @@ class BandData():
     energys = self.band_data["spin_up_energys"]#band_data["sorted_energys"]
     gapped = True
     bandwidth_info={}
-    # has ''
+    cross_fermi_index=[]
+    flat_index=[]
     for band_i in range(band_num):
       band_energy = energys[band_i, :]
-      temp_dict={}
-      temp_dict['max']=max(band_energy)
-      temp_dict['min']=min(band_energy)
-      bandwidth_info[band_i]=temp_dict
+      temp_dict = {}
+      temp_dict['max'] = max(band_energy)
+      temp_dict['min'] = min(band_energy)
+      temp_dict['width'] = temp_dict['max']-temp_dict['min']
+      bandwidth_info[band_i] = temp_dict
+      if temp_dict['width'] < flat_tol:
+        flat_index.append(band_i)
       if temp_dict['max']>0 and temp_dict['min']<0:
         gapped = False
+        cross_fermi_index.append(band_i)
         continue
       '''
       # TODO
       elif temp_dict['max']<0 and temp_dict['max']> 0-gap_tol:
         # check 3 neighbour bands to find dirac cone type system
-      '''
-
-      
-    
-    self.band_data['gapped']= gapped
-    self.band_data['bandwidth_info']=bandwidth_info
+      '''   
+    self.band_data['gapped'] = gapped
+    self.band_data['gap_size'] = self.band_data['lumo_energy'] - self.band_data['homo_energy']
+    self.band_data['cross_fermi_index'] = cross_fermi_index
+    self.band_data['flat_index'] = flat_index
+    self.band_data['bandwidth_info'] = bandwidth_info
     return
+  
+  def advise_plot_range(self,plot_args,cover_band=10):
+    '''
+    advise_plot_range will change plot_args["min/max_plot_energy"] to cover at least 10 bands above/under E_F
+    '''
+    energys = self.band_data["spin_up_energys"]
+    cross_fermi_index = self.band_data['cross_fermi_index']
+    homo_index = self.band_data['homo_band_index']
+    bandwidth_info = self.band_data['bandwidth_info']
     
-
-
+    if len(cross_fermi_index)==0:
+      index_up = homo_index + cover_band
+      index_dn = homo_index - cover_band +1
+    else:
+      index_up = max(cross_fermi_index) + cover_band
+      index_dn = min(cross_fermi_index) - cover_band +1
+    up = bandwidth_info[index_up]['max']
+    dn = bandwidth_info[index_dn]['min']
+    up = (up//0.5)*0.5 + 0.5
+    dn = (dn//0.5)*0.5
+    boundary = max(up,0-dn)
+    plot_args["min_plot_energy"] = 0-boundary
+    plot_args["max_plot_energy"] = boundary
+    self.band_data['advise_plot_range']=[-boundary,boundary]
+    return plot_args
 
 def get_command_line_input():
   '''Read in the command line parameters'''
@@ -529,7 +566,8 @@ def band_plot(band_data_obj, plot_args,savepath):
   for band_i in range(band_num_each_spin):
       x = kpoints_coords
       y = spin_up_energys[band_i]
-      band_plot.plot(x, y, 'b-', linewidth=1.5)
+      # band_plot.plot(x, y, 'b-', linewidth=1.5)
+      band_plot.scatter(x, y, c='blue',s=0.8)
 
   if spin_num == 2:
       for band_i in range(band_num_each_spin):
@@ -669,34 +707,39 @@ def band_plot_brokeny(band_data_obj, plot_args, cut_energy, highlight_num=1,save
   return 
 
 
-def load_process_band(readpath,savepath,plot=True):
+def load_process_band(readpath,savepath,refine_fermi=True,get_bandwidth=True,\
+  advise_plot_range=True,plot=True,compare_dft=True,dft_path=None):
   '''
-  band functions
+  by baot:
   load and process data from reconnected json
   add path argument for file input and output
+  the options are not indepedent, see the source code
   '''
-  from_json = True
   plot_args = get_command_line_input()
-  band_data_obj = BandData(plot_args["data_type"])
-  if not from_json:
-    band_data_obj.file_read(plot_args["data_filename"])
-    band_data_obj.get_band_data()
-    band_save_to_json(band_data_obj.band_data, plot_args["file_tag"])
-  else:
-    with open(readpath+'/band_reconnect.json', 'r') as f:
-      data_new = json.load(f)
-    for key, val in data_new.items():
-      if type(val) is list:
-        data_new[key] = np.array(val)
-    band_data_obj.band_data = data_new
-    
+  band_data_obj = RcBandData(plot_args["data_type"])
+  with open(readpath+'/band_reconnect.json', 'r') as f:
+    data_new = json.load(f)
+  for key, val in data_new.items():
+    if type(val) is list:
+      data_new[key] = np.array(val)
+  band_data_obj.band_data = data_new
+
+  if refine_fermi:
     # baot: make sure refine fermi energy works
     band_data_obj.refined_reconnected_fermi_energy()
-
+  if get_bandwidth:
+    band_data_obj.get_reconnected_bandwidth()
+  if advise_plot_range:
+    plot_args = band_data_obj.advise_plot_range(plot_args=plot_args,cover_band=10)
   # ==
   if not plot_args["no_plot"] and plot:
     band_plot(band_data_obj, plot_args,savepath=savepath)
     # band_plot_P4(band_data_obj, plot_args, cut_energy=[-0.09,0.09], highlight_num= 2 )
+
+  if compare_dft:
+    dft_data_obj = BandData(plot_args["data_type"])
+    dft_data_obj.file_read(dft_path+'/openmx.Band')
+    dft_data_obj.get_band_data()
 
   return band_data_obj
 #+----------------+
