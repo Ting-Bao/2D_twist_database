@@ -446,6 +446,8 @@ class RcBandData():
     else:
       index_up = max(cross_fermi_index) + cover_band
       index_dn = min(cross_fermi_index) - cover_band +1
+    if index_dn<0:
+      index_dn=0
     up = bandwidth_info[index_up]['max']
     dn = bandwidth_info[index_dn]['min']
     up = (up//0.5)*0.5 + 0.5
@@ -506,6 +508,76 @@ def band_save_to_json(data, file_tag):
     json.dump(data_save, jfwp)
   return
 
+def dft_band_plot(band_data_obj, plot_args):
+  '''band plot function'''
+  hsk_coords = band_data_obj.band_data["hsk_coords"]
+  plot_hsk_symbols = band_data_obj.band_data["plot_hsk_symbols"]
+  kpath_num = band_data_obj.band_data["kpath_num"]
+  band_num_each_spin = band_data_obj.band_data["band_num_each_spin"]
+  kpoints_coords = band_data_obj.band_data["kpoints_coords"]
+  spin_num = band_data_obj.band_data["spin_num"]
+  spin_up_energys = band_data_obj.band_data["spin_up_energys"]
+  spin_dn_energys = band_data_obj.band_data["spin_dn_energys"]
+  min_plot_energy = plot_args["min_plot_energy"]
+  max_plot_energy = plot_args["max_plot_energy"]
+  file_tag = plot_args["file_tag"]
+  plot_format = plot_args["plot_format"]
+  plot_dpi = plot_args["plot_dpi"]
+  ## Design the Figure
+  # For GUI less server
+  plt.switch_backend('agg') 
+  # Set the Fonts
+  # plt.rcParams.update({'font.size': 14,
+  #                      'font.family': 'STIXGeneral',
+  #                      'mathtext.fontset': 'stix'})
+  plt.rcParams.update({'font.size': 22,
+                     'font.family': 'Arial',
+                     'mathtext.fontset': 'cm'})
+  # Set the spacing between the axis and labels
+  plt.rcParams['xtick.major.pad'] = '6'
+  plt.rcParams['ytick.major.pad'] = '6'
+  # Set the ticks 'inside' the axis
+  plt.rcParams['xtick.direction'] = 'in'
+  plt.rcParams['ytick.direction'] = 'in'
+  # Create the figure and axis object
+  fig = plt.figure(figsize=(5.5, 5.5))
+  band_plot = fig.add_subplot(1, 1, 1)
+  # Set the range of plot
+  x_min = 0.0
+  x_max = hsk_coords[-1]
+  y_min = min_plot_energy
+  y_max = max_plot_energy
+  plt.xlim(x_min, x_max)
+  plt.ylim(y_min, y_max)
+  # Set the label of x and y axis
+  plt.xlabel('')
+  plt.ylabel('Energy (eV)')
+  # Set the Ticks of x and y axis
+  plt.xticks(hsk_coords)
+  band_plot.set_xticklabels(plot_hsk_symbols)
+  plt.yticks(size=14)
+  # Plot the solid lines for High symmetic k-points
+  for kpath_i in range(kpath_num+1):
+    plt.vlines(hsk_coords[kpath_i], y_min, y_max, colors="black", linewidth=0.7)
+  # Plot the fermi energy surface with a dashed line
+  plt.hlines(0.0, x_min, x_max, colors="black", 
+             linestyles="dashed", linewidth=0.7)
+  # Plot the Band Structure
+  for band_i in range(band_num_each_spin):
+      x = kpoints_coords
+      y = spin_up_energys[band_i]
+      band_plot.plot(x, y, 'r-', linewidth=1.5)
+  if spin_num == 2:
+      for band_i in range(band_num_each_spin):
+          x = kpoints_coords
+          y = spin_dn_energys[band_i]
+          band_plot.plot(x, y, '-', color='#0564c3', linewidth=1)
+  # Save the figure
+  plot_filename = "%s.%s" %(file_tag, plot_format)
+  plt.tight_layout()
+  plt.savefig(plot_filename, format=plot_format, dpi=plot_dpi, transparent=True)
+  plt.savefig('band.svg', transparent=True)
+  return 
 
 def band_plot(band_data_obj, plot_args,savepath):
   '''band plot function'''
@@ -641,9 +713,6 @@ def band_plot_brokeny(band_data_obj, plot_args, cut_energy, highlight_num=1,save
   y_max = max_plot_energy
   # plt.xlim(x_min, x_max)
   # plt.ylim(y_min, y_max)
-  
-  
-
   # Set the Ticks of x and y axis
   # plt.xticks(hsk_coords)
   
@@ -681,9 +750,6 @@ def band_plot_brokeny(band_data_obj, plot_args, cut_energy, highlight_num=1,save
       y = spin_up_energys[band_i]
       ax.plot(x, y, ls = '-', color=colorlist[i] , linewidth=2)
 
-
-
-
     if spin_num == 2:
       for band_i in range(band_num_each_spin):
 
@@ -706,6 +772,105 @@ def band_plot_brokeny(band_data_obj, plot_args, cut_energy, highlight_num=1,save
   plt.savefig(savepath+'/band_reconnected_brokeny.svg', transparent=True)
   return 
 
+def compare_plot(band_data_obj,savepath='./',manual_align = True,highlight_band=[]):
+  '''band plot function
+  manual align is to align the reconnected band to the DFT band
+  hightlight_band gives the band index of RC band to highlight(rg. flatband)
+  '''
+  hsk_coords = band_data_obj.band_data["hsk_coords"]
+  plot_hsk_symbols = band_data_obj.band_data["plot_hsk_symbols"]
+  kpath_num = band_data_obj.band_data["kpath_num"]
+  band_num_each_spin = band_data_obj.band_data["band_num_each_spin"]
+  kpoints_coords = band_data_obj.band_data["kpoints_coords"]
+  spin_num = band_data_obj.band_data["spin_num"]
+  spin_up_energys = band_data_obj.band_data["spin_up_energys"]
+  spin_dn_energys = band_data_obj.band_data["spin_dn_energys"]
+  min_plot_energy = band_data_obj.band_data['advise_plot_range'][0]
+  max_plot_energy = band_data_obj.band_data['advise_plot_range'][1]
+
+  dft_data = band_data_obj.dft_data["spin_up_energys"]
+
+  ## Design the Figure
+  # For GUI less server
+  plt.switch_backend('agg') 
+  plt.rcParams.update({'font.size': 14,
+                     'font.family': 'Arial',
+                     'mathtext.fontset': 'cm'})
+  # Set the spacing between the axis and labels
+  plt.rcParams['xtick.major.pad'] = '6'
+  plt.rcParams['ytick.major.pad'] = '6'
+  # Set the ticks 'inside' the axis
+  plt.rcParams['xtick.direction'] = 'in'
+  plt.rcParams['ytick.direction'] = 'in'
+  # Create the figure and axis object
+  fig = plt.figure(figsize=(5.5, 5.5))
+  band_plot = fig.add_subplot(1, 1, 1)
+  # Set the range of plot
+  x_min = 0.0
+  x_max = hsk_coords[-1]
+  y_min = min_plot_energy
+  y_max = max_plot_energy
+  plt.xlim(x_min, x_max)
+  plt.ylim(y_min, y_max)
+  # Set the label of x and y axis
+  plt.xlabel('')
+  plt.ylabel('Energy (eV)')
+  # Set the Ticks of x and y axis
+  plt.xticks(hsk_coords)
+  band_plot.set_xticklabels(plot_hsk_symbols)
+  plt.yticks(size=10)
+  # Plot the solid lines for High symmetic k-points
+  for kpath_i in range(kpath_num+1):
+    plt.vlines(hsk_coords[kpath_i], y_min, y_max, colors="black", linewidth=0.7)
+  # Plot the fermi energy surface with a dashed line
+  plt.hlines(0.0, x_min, x_max, colors="black", 
+             linestyles="dashed", linewidth=0.7)
+  
+
+  # Plot the DFT Band Structure
+  dft_band_num = band_data_obj.dft_data["band_num_each_spin"]
+  dft_kpoints_coords = band_data_obj.dft_data["kpoints_coords"]
+  for band_i in range(dft_band_num):
+      x = dft_kpoints_coords
+      y = dft_data[band_i]
+      band_plot.plot(x, y, 'r-',linewidth=1.0)
+  
+  # for the fermi energy unmatch, here we have no choice but to mannually align it
+  # we will search for the matched band near homo, to avoid band index error, 7 bands will be checked
+  # this works only if the kmesh are the same
+  if manual_align:
+    diff_list=[]
+    dft_homo = dft_data[band_data_obj.dft_data['homo_band_index']][:]
+    for i in range(-3,4):
+      rcband_homo = spin_up_energys[band_data_obj.band_data['homo_band_index']+i][:]
+      sum_abs_diff = 0
+      for x1, x2 in zip(dft_homo, rcband_homo):
+        sum_abs_diff += abs(x1 - x2)
+      diff_list.append(sum_abs_diff)
+    match_index = np.argmin(np.array(diff_list)) - 3
+    rcband_homo = spin_up_energys[band_data_obj.band_data['homo_band_index']+match_index][:]
+    shift = sum([item[0]-item[1] for item in zip(dft_homo, rcband_homo)])
+    shift = shift/len(dft_homo)
+  else:
+    shift = 0
+  
+  # Plot the Reconnected Band Structure
+  for band_i in range(band_num_each_spin):
+      x = kpoints_coords
+      y = spin_up_energys[band_i] + shift
+      if band_i in highlight_band:
+        band_plot.plot(x, y, c='orange',linewidth=2.0,zorder = 1e5)
+      # band_plot.plot(x, y, 'b-', linewidth=1.5)
+      band_plot.scatter(x, y, c='royalblue',s=1.3,zorder = 1e4)
+
+  # Save the figure
+  #plt.tight_layout()
+  plt.savefig(savepath+'/band_compare.png', dpi=600, transparent=True)
+  plt.savefig(savepath+'/band_compare.svg', transparent=True)
+  plt.close()
+  return 
+
+
 
 def load_process_band(readpath,savepath,refine_fermi=True,get_bandwidth=True,\
   advise_plot_range=True,plot=True,compare_dft=True,dft_path=None):
@@ -724,13 +889,13 @@ def load_process_band(readpath,savepath,refine_fermi=True,get_bandwidth=True,\
       data_new[key] = np.array(val)
   band_data_obj.band_data = data_new
 
-  if refine_fermi:
+  #if refine_fermi:
     # baot: make sure refine fermi energy works
-    band_data_obj.refined_reconnected_fermi_energy()
+  #  band_data_obj.refined_reconnected_fermi_energy()
   if get_bandwidth:
     band_data_obj.get_reconnected_bandwidth()
   if advise_plot_range:
-    plot_args = band_data_obj.advise_plot_range(plot_args=plot_args,cover_band=10)
+    plot_args = band_data_obj.advise_plot_range(plot_args=plot_args,cover_band=15)
   # ==
   if not plot_args["no_plot"] and plot:
     band_plot(band_data_obj, plot_args,savepath=savepath)
@@ -740,6 +905,14 @@ def load_process_band(readpath,savepath,refine_fermi=True,get_bandwidth=True,\
     dft_data_obj = BandData(plot_args["data_type"])
     dft_data_obj.file_read(dft_path+'/openmx.Band')
     dft_data_obj.get_band_data()
+    band_data_obj.dft_data = dft_data_obj.band_data
+    # give the dft data to the reconnected data obj
+    if len(band_data_obj.band_data['cross_fermi_index'])>0:
+      temp = max(band_data_obj.band_data['cross_fermi_index'])
+    else:
+      temp = band_data_obj.band_data["homo_band_index"]
+    highlight = [i for i in band_data_obj.band_data['flat_index'] if i> temp-11 and i<temp+1]
+    compare_plot(band_data_obj,savepath=savepath,highlight_band=highlight)
 
   return band_data_obj
 #+----------------+
@@ -747,7 +920,7 @@ def load_process_band(readpath,savepath,refine_fermi=True,get_bandwidth=True,\
 #+----------------+
 
 def main():
-  band()
+  load_process_band()
   return
 
 if __name__=='__main__':
