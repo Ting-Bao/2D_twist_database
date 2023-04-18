@@ -91,10 +91,10 @@ def get_dataset(parser, path):
 
 def plotfig(parser, data, name):
     args = parser.parse_args()
-    colorlist=['red','green','blue']
+    colorlist=['red','royalblue','orange','forestgreen']
 
     # new figure by baot
-    fig, ax = plt.subplots(figsize=(10,4))
+    fig, ax = plt.subplots(figsize=(7.5,3))
     #ax2 = ax.twinx()
     ax2 = ax
     # ax2.spines['right'].set_visible(False)
@@ -122,7 +122,7 @@ def plotfig(parser, data, name):
         X_new = np.linspace(1.0, args.rcut + 0.2, num_points,
                             endpoint=False) + width / (2 * 3)
         Y_new = interp_func(X_new)
-        ax2.plot(X_new, Y_new, linewidth=1.2, color=colorlist[i])
+        ax2.plot(X_new, Y_new, linewidth=2, color=colorlist[i], alpha = 0.7)
     ax2.set_ylim(ymin=0)
     # 将坐标轴的base number设置为一位。1是指科学计数法时的位数
 
@@ -144,9 +144,9 @@ def plotfig(parser, data, name):
                         endpoint=False) + width / (2 * 3)
     Y_new = interp_func(X_new)
 
-    ax.plot(X_new, Y_new, color='grey', label='dataset')
+    ax.plot(X_new, Y_new, color='grey', alpha = 0.7, linewidth = 2, label='dataset',)
     tempy=[-0.001] * len(X_new)
-    ax.fill_between(X_new, Y_new, tempy, where=(Y_new > tempy), facecolor='grey', alpha=0.5) # set the transparency of the area
+    ax.fill_between(X_new, Y_new, tempy, where=(Y_new > tempy), facecolor='grey', alpha=0.15) # set the transparency of the area
     # fmt = '%.0f%%' # Format you want the ticks, e.g. '40%'
     # xticks = mtick.FormatStrFormatter(fmt)
     # ax.yaxis.set_major_formatter(xticks)
@@ -167,24 +167,25 @@ def plotfig(parser, data, name):
     # labels = ['dataset'] + ['{}'.format(item) for item in twist]
     labels = ['dataset'] + [r'10.87$^\circ$'] + [r'13.17$^\circ$'] + [r'1.08$^\circ$']
     ax.legend(plots, labels, loc='lower right')
+    temp = name.split('-')[0]
 
-    # P4
-    labels = ['dataset',r'10.87$^\circ$ (7-4, 228 atoms)',r'2.20$^\circ$ (35-19, 5324 atoms)',r'1.45$^\circ$ (53-28, 11876 atoms)']
+    if temp=='P4':
+        labels = ['dataset',r'10.87$^\circ$ (7-4, 228 atoms)',r'2.20$^\circ$ (35-19, 5324 atoms)',r'1.45$^\circ$ (53-28, 11876 atoms)']
     
-    # C2
-    labels = ['dataset',r'21.79$^\circ$ (2-1, 28 atoms)',r'1.61$^\circ$ (21-20, 5044 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
+    if temp=='C2':
+        labels = ['dataset',r'21.79$^\circ$ (2-1, 28 atoms)',r'1.61$^\circ$ (21-20, 5044 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
     
-    # SnS2
-    # labels = ['dataset',r'36.87$^\circ$ (2-1, 30 atoms)',r'2.79$^\circ$ (21-20, 5046 atoms)',r'1.88$^\circ$ (31-30, 11166 atoms)']
+    if temp=='SnS2':
+        labels = ['dataset',r'36.87$^\circ$ (2-1, 30 atoms)',r'2.79$^\circ$ (21-20, 5046 atoms)',r'1.88$^\circ$ (31-30, 11166 atoms)']
     
-    # Bi2I6
-    # labels = ['dataset',r'21.79$^\circ$ (2-1, 112 atoms)',r'1.61$^\circ$ (21-20, 20176 atoms)',r'1.08$^\circ$ (31-30, 44656 atoms)']
+    if temp=='Bi2I6':
+        labels = ['dataset',r'21.79$^\circ$ (2-1, 112 atoms)',r'1.61$^\circ$ (21-20, 20176 atoms)',r'1.08$^\circ$ (31-30, 44656 atoms)']
     
-    # PtSe2
-    labels = ['dataset',r'21.79$^\circ$ (2-1, 42 atoms)',r'1.61$^\circ$ (21-20, 16746 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
+    if temp=='PtSe2':
+        labels = ['dataset',r'21.79$^\circ$ (2-1, 42 atoms)',r'1.61$^\circ$ (21-20, 16746 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
 
-    # TaS2
-    # labels = ['dataset',r'21.79$^\circ$ (2-1, 42 atoms)',r'1.61$^\circ$ (21-20, 16746 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
+    if temp=='TaS2':
+        labels = ['dataset',r'21.79$^\circ$ (2-1, 42 atoms)',r'1.61$^\circ$ (21-20, 16746 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
 
     ax.legend(plots, labels, loc='lower right',fontsize=12)
     # Set the title and axis labels
@@ -202,7 +203,7 @@ def main():
         'C2-a6735a4a3797', 'P4-276f0a298324', 'SnS2-08a9307b286e',
         'Bi2I6-433fccc74b5d', 'TaS2-9415d3a10af8', 'PtSe2-d000f0288397'
     ]
-    for material in materials[:1]:
+    for material in materials:
         path = 'get_neighbor_feature/target_POSCAR/' + material
         data = get_data(parser,path)
         

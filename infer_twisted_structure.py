@@ -348,8 +348,8 @@ def infer_and_eval(source, target):
 source ~/.bashrc
 #conda activate 39
 '''
-            if count % 15 == 0:
-                with open(infer_path + 'runall{}.sh'.format(count//15), 'w', encoding='utf-8') as f:
+            if count % 40 == 0:
+                with open(infer_path + 'runall{}.sh'.format(count//40), 'w', encoding='utf-8') as f:
                     f.writelines([head]+cmd)
                 cmd = []
     print(" Infer and eval file prepared for {} twisted material(s)! ".format(

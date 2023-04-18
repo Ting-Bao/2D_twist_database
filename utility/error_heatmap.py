@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# from gongxx
+# functionalized --baot
 import json
 import sys
 from functools import reduce
@@ -12,7 +13,7 @@ import matplotlib.transforms as tfs
 filename_json = sys.argv[1]
 filename_plot = filename_json.split('.')[0]
 
-fontsize = 18
+fontsize = 14
 tick_interval = 1
 
 plt.rcParams.update({'font.size': fontsize,
