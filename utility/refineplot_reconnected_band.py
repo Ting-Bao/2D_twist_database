@@ -13,6 +13,7 @@
 # Usage: python3 plot_openmx_band.py -h
 
 import sys
+import os
 import argparse
 import math
 import numpy as np
@@ -396,7 +397,7 @@ class RcBandData():
         self.band_data["homo_kpt_index"] = homo_kpt_index
         return
 
-    def get_reconnected_bandwidth(self, band_index=0, gap_tol=0.005, flat_tol=0.006):
+    def get_reconnected_bandwidth(self, band_index=0, gap_tol=0.005, flat_tol=0.008):
         '''by baot,
         used for band_reconnected.json from connect_interpolate.py
         count all the bandwidth, work for spin_num = 1 only,
@@ -593,7 +594,7 @@ class ScBandData():
 
         # lihe: Read band from each calc
         assert spin_num == 1
-        print(spin_up_energys.shape)
+        # print(spin_up_energys.shape)
         for root, folders, files in os.walk(self.egval_path):
             if 'egval.dat' in files:
                 index_k = int(os.path.split(root)[-1]) - 1
@@ -1191,10 +1192,13 @@ def compare_plot(band_data_obj, plot_args, savepath='./', auto_align=True, manua
           y = dft_data[band_i]
           ax.plot(x, y, 'r-', linewidth=1.0)
 
-      # Plot the Reconnected Band Structure
+      # Plot the Reconnected Band Structure or sactter bands
       for band_i in range(band_num_each_spin):
           x = kpoints_coords
-          y = spin_up_energys[band_i] + shift
+          if 'usescatter' in plot_args.keys():
+            y = sc_data[band_i] + shift
+          else:
+            y = spin_up_energys[band_i] + shift
           ax.scatter(x, y, c='royalblue', s=1.3, zorder=1e4)
 
       # Plot the highlighted band structure
@@ -1229,7 +1233,7 @@ def compare_plot(band_data_obj, plot_args, savepath='./', auto_align=True, manua
 
     # Save the figure
     # plt.tight_layout()
-    plt.savefig(savepath+'/band_compare.png', dpi=600, transparent=True)
+    plt.savefig(savepath+'/band_compare.png', dpi=200, transparent=True)
     plt.savefig(savepath+'/band_compare.svg', transparent=True)
     plt.close()
     return shift
@@ -1289,6 +1293,7 @@ def load_process_band(readpath, savepath, refine_fermi=True, get_bandwidth=True,
         # give the dft data to the reconnected data obj
         if usescatter:
             sc_data_obj = ScBandData(plot_args["data_type"])
+            sc_data_obj.file_read(plot_args['scatter_path']+'/openmx.Band')
             sc_data_obj.get_band_data(egval_path)  # usescatter = 'egval_k/'
             band_data_obj.sc_data = sc_data_obj.band_data
         if len(band_data_obj.band_data['cross_fermi_index']) > 0:

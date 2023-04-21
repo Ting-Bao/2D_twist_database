@@ -20,7 +20,7 @@ json_alldata = 'data/c2dbdata/jsondata/'
 # data/c2dbdata/jsondata/Al2Cl6-b8b35ca6154e.all_data.json
 
 opmx_path_local = './data/twisted_struc_opmx_OK/twisted_band_opmx_processed_with_S/'
-infer_path = './data/infer_calculation/'
+infer_path = './data/infer_calculation_tosub/'
 
 # @w001
 opmx_path = '/home/xurz/temp_baot/twisted_band_opmx/data/twisted_band_opmx_processed_with_S/'
@@ -114,6 +114,7 @@ def infer_and_eval(source, target):
     get the prepare file to run on the w001 server
     '''
     models = [i for i in os.listdir(source) if os.path.isdir(source + i)]
+    models=sorted(models)
     to_infer_list = []  # 记录需要比较的cased，eg， 'Al2Cl2/2-1'
     cmd = []  # 记录需要在w001上执行的脚本
     cmd_project = []  # 记录需要在w001上执行的project脚本
@@ -177,13 +178,13 @@ def infer_and_eval(source, target):
                       'w',
                       encoding='utf-8') as f:
                 f.writelines(jsoninfo)
+            # cmd.append('cp -r {} {}\n'.format(
+            #     opmx_path + i + '_' + twist_case + '/*',
+            #     temp_workpath + 'predict_e3nn/'))
+            # cmd.append(
+            #     'cd {} && python {} eval.ini -n 8 >> eval_log && sleep 3 \n'.
+            #     format(temp_workpath + 'predict_e3nn/', e3eval_path))
 
-            cmd.append('cp -r {} {}\n'.format(
-                opmx_path + i + '_' + twist_case + '/*',
-                temp_workpath + 'predict_e3nn/'))
-            cmd.append(
-                'cd {} && python {} eval.ini -n 8 >> eval_log && sleep 3 \n'.
-                format(temp_workpath + 'predict_e3nn/', e3eval_path))
             # 多进程并行时候，-n 8 在有些case下不work，不知道为何
             '''
             3. get mae
@@ -201,9 +202,9 @@ def infer_and_eval(source, target):
                       encoding='utf-8') as f:
                 f.writelines(jsoninfo)
 
-            cmd.append(
-                'cd {} && python mae_heat_map.py>>info_mae && sleep 3 \n'.
-                format(temp_workpath + 'mae'))
+            #cmd.append(
+            #    'cd {} && python mae_heat_map.py>>info_mae && sleep 3 \n'.
+            #    format(temp_workpath + 'mae'))
             '''
             4. band_structure and infer_band_pardiso.py 
             '''
@@ -247,9 +248,9 @@ def infer_and_eval(source, target):
             shutil.copy('template/analyze/plot_band_scatter_each_k.py',
                         twistpath_local + '/band/')
 
-            cmd.append(
-                'cd {} && python infer_band_pardiso.py>>info_band && python plot_band_scatter_each_k.py >> info_band&& sleep 3 \n'
-                .format(temp_workpath + 'band'))
+            # cmd.append(
+            #     'cd {} && python infer_band_pardiso.py>>info_band && python plot_band_scatter_each_k.py >> info_band&& sleep 3 \n'
+            #     .format(temp_workpath + 'band'))
             '''
             5. pband, band_projection 
             '''
@@ -287,9 +288,9 @@ def infer_and_eval(source, target):
                     pass
                 os.symlink('../predict_e3nn/{}'.format(file), linkfile)
 
-            cmd.append(
-                'cd {} && python infer_pband.py>>info_pband && bash post_orb.sh &&sleep 3 \n'
-                .format(temp_workpath + 'pband'))
+            # cmd.append(
+            #    'cd {} && python infer_pband.py>>info_pband && bash post_orb.sh &&sleep 3 \n'
+            #    .format(temp_workpath + 'pband'))
             '''
             6. pdos
             '''
@@ -318,8 +319,8 @@ def infer_and_eval(source, target):
 
             # decide kmesh
             str_raw = Structure.from_file(DFT_path + 'POSCAR')
-            kmesha = int(120 // str_raw.lattice.a + 1)
-            kmeshb = int(120 // str_raw.lattice.b + 1)
+            kmesha = int(480 // str_raw.lattice.a + 1)
+            kmeshb = int(480 // str_raw.lattice.b + 1)
             # prepare the dos_config.json
             template = 'template/analyze/dos_config_template.json'
             content = [float(fermi) * 27.21138602, kmesha, kmeshb,
@@ -347,9 +348,11 @@ def infer_and_eval(source, target):
 #PBS -q cmtmd
 source ~/.bashrc
 #conda activate 39
+export LD_LIBRARY_PATH=/home/lihe/local/usr/lib64:"$LD_LIBRARY_PATH"
+source /home/lihe/intel/oneapi/setvars.sh
 '''
-            if count % 40 == 0:
-                with open(infer_path + 'runall{}.sh'.format(count//40), 'w', encoding='utf-8') as f:
+            if count % 35 == 0:
+                with open(infer_path + 'runall{}.sh'.format(count//35), 'w', encoding='utf-8') as f:
                     f.writelines([head]+cmd)
                 cmd = []
     print(" Infer and eval file prepared for {} twisted material(s)! ".format(
