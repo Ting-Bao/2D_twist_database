@@ -32,7 +32,7 @@ def main():
     data = pd.DataFrame(columns=['Material formula', 'C2DB id', 'Twisted index', '#(half) occupied flat bands',
                                  'occbandwidth', '#unoccupied flat bands', 'unoccbandwidth'])
     index = 0
-    for path in tqdm(pathlist[1:3]):#['data/infer_calculation/Bi2-e50c9fb190b0/3-2/band']: #
+    for path in tqdm(pathlist[2:3]):#['data/infer_calculation/Bi2-e50c9fb190b0/3-2/band']: #
         print(path)
         connect_band(inputpath=path, outputpath=path, spline_interpolate=False)
         special_list = ['BN-4a5edc763604','C2-a6735a4a3797/2-1','HfBi2-17f1085c54c9/2-1','HfBi2-ed9b447c7b9c/2-1']

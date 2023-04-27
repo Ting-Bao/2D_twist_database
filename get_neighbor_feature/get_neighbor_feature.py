@@ -175,6 +175,10 @@ def plotfig(parser, data, name):
     if temp=='C2':
         labels = ['dataset',r'21.79$^\circ$ (2-1, 28 atoms)',r'1.61$^\circ$ (21-20, 5044 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
     
+    # relaxed case only
+    # if temp=='C2':
+    #     labels = ['dataset',r'21.79$^\circ$ (2-1, 28 atoms)',r'1.54$^\circ$ (22-21, 5548 atoms)',r'1.08$^\circ$ (31-30, 11164 atoms)']
+
     if temp=='SnS2':
         labels = ['dataset',r'36.87$^\circ$ (2-1, 30 atoms)',r'2.79$^\circ$ (21-20, 5046 atoms)',r'1.88$^\circ$ (31-30, 11166 atoms)']
     
@@ -201,15 +205,14 @@ def main():
     parser = get_parser()
     materials = [
         'C2-a6735a4a3797', 'P4-276f0a298324', 'SnS2-08a9307b286e',
-        'Bi2I6-433fccc74b5d', 'TaS2-9415d3a10af8', 'PtSe2-d000f0288397'
+        'Bi2I6-433fccc74b5d', 'TaS2-9415d3a10af8', 'PtSe2-d000f0288397',
+        'C2-a6735a4a3797relaxed'
     ]
-    for material in materials:
+    for material in materials[-1:]:
         path = 'get_neighbor_feature/target_POSCAR/' + material
         data = get_data(parser,path)
-        
         plotfig(parser, data, name=material)
     print('OK')
-
 
 if __name__ == '__main__':
     main()

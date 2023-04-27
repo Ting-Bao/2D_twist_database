@@ -114,7 +114,7 @@ def infer_and_eval(source, target):
     get the prepare file to run on the w001 server
     '''
     models = [i for i in os.listdir(source) if os.path.isdir(source + i)]
-    models=sorted(models)
+    models = sorted(models)
     to_infer_list = []  # 记录需要比较的cased，eg， 'Al2Cl2/2-1'
     cmd = []  # 记录需要在w001上执行的脚本
     cmd_project = []  # 记录需要在w001上执行的project脚本
@@ -144,7 +144,7 @@ def infer_and_eval(source, target):
                 temp_workpath = work_path + i + '/' + twist_case + '/'
                 to_infer_list.append('{}/{}'.format(i, twist_case))
 
-            cmd.append("\necho start processing:{}".format(i + ' ' + twist_case))
+            cmd.append("\necho start processing:{}\n".format(i + ' ' + twist_case))
             '''
             1. deeph-inference
             '''
@@ -160,9 +160,9 @@ def infer_and_eval(source, target):
                       encoding='utf-8') as f:
                 f.writelines(jsoninfo)
             # print(i)
-            cmd.append(
-                '\n# cd {} && deeph-inference --config inference.ini && sleep 3 \n'
-                .format(temp_workpath))
+            # cmd.append(
+            #     '# cd {} && deeph-inference --config inference.ini && sleep 3 \n'
+            #     .format(temp_workpath))
             '''
             2. e3 eval.py
             '''
@@ -178,9 +178,10 @@ def infer_and_eval(source, target):
                       'w',
                       encoding='utf-8') as f:
                 f.writelines(jsoninfo)
-            # cmd.append('cp -r {} {}\n'.format(
-            #     opmx_path + i + '_' + twist_case + '/*',
-            #     temp_workpath + 'predict_e3nn/'))
+            cmd.append('mkdir {}\n'.format(temp_workpath+'dft_alldata/'))
+            # cmd.append('cp -r {} {}\n'.format(opmx_path+i+'_'+twist_case+'/*', temp_workpath+'dft_alldata/'))
+            cmd.append('cp -r {} {}\n'.format("/home/xurz/temp_baot/twisted_band_opmx/data/twisted_band_opmx/"+i+'_'+twist_case+'/*', temp_workpath+'dft_alldata/'))
+
             # cmd.append(
             #     'cd {} && python {} eval.ini -n 8 >> eval_log && sleep 3 \n'.
             #     format(temp_workpath + 'predict_e3nn/', e3eval_path))
@@ -202,7 +203,7 @@ def infer_and_eval(source, target):
                       encoding='utf-8') as f:
                 f.writelines(jsoninfo)
 
-            #cmd.append(
+            # cmd.append(
             #    'cd {} && python mae_heat_map.py>>info_mae && sleep 3 \n'.
             #    format(temp_workpath + 'mae'))
             '''
@@ -335,10 +336,10 @@ def infer_and_eval(source, target):
             f2 = "/home/lihe/anaconda3/envs/3_9/bin/python3 /home/baot/bin/post_pdos_orb_type.py -i1 . -i2 pdos -o pdos"
             f3 = "/home/lihe/anaconda3/envs/3_9/bin/python3 /home/baot/bin/smearing_pdos_orb_type.py -i1 . -i2 pdos -o . --config dos_config.json"
             f4 = "/home/lihe/anaconda3/envs/3_9/bin/python3 /home/baot/bin/plot_pdos_orb_type.py"
-            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f1 + ' \n')
-            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f2 + ' \n')
-            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f3 + ' \n')
-            cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f4 + ' \n')
+            # cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f1 + ' \n')
+            # cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f2 + ' \n')
+            # cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f3 + ' \n')
+            # cmd.append("cd {} && ".format(temp_workpath + 'pdos') + f4 + ' \n')
 
             count += 1
             head = fr'''#!/bin/bash
@@ -351,10 +352,15 @@ source ~/.bashrc
 export LD_LIBRARY_PATH=/home/lihe/local/usr/lib64:"$LD_LIBRARY_PATH"
 source /home/lihe/intel/oneapi/setvars.sh
 '''
-            if count % 35 == 0:
-                with open(infer_path + 'runall{}.sh'.format(count//35), 'w', encoding='utf-8') as f:
+            
+            item_each_run=220
+            if count % item_each_run == 0:
+                with open(infer_path + 'runall{}.sh'.format(count//item_each_run), 'w', encoding='utf-8') as f:
                     f.writelines([head]+cmd)
                 cmd = []
+    if len(cmd)>0:
+        with open(infer_path + 'runall{}.sh'.format(count//item_each_run+1), 'w', encoding='utf-8') as f:
+                    f.writelines([head]+cmd)
     print(" Infer and eval file prepared for {} twisted material(s)! ".format(
         len(to_infer_list)))
 
